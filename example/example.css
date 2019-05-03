@@ -1,0 +1,55 @@
+body,
+html {
+ color:#333;
+ font-size: 16px;
+}
+.siteWrapper {
+ position:relative;
+ width:100%;
+ overflow:hidden
+}
+
+.innerPadding {
+ padding:2rem
+}
+
+header {
+ max-width:100%;
+ width:100%;
+ height:3rem;
+ background-color:#fff;
+ border-bottom:1px solid #ddd;
+ overflow:hidden;
+ z-index:9999;
+ line-height:3rem
+}
+header .innerPadding {
+ padding:0 2rem
+}
+header .logoHeader {
+ text-align:center;
+ line-height:3rem
+}
+header .logoHeader img {
+  height: 2rem;
+  width: auto;
+  left: 0;
+  top: -.25rem;
+  padding-bottom: 0;
+  position: relative;
+  margin-right: .25rem;
+}
+header .logoHeader .title {
+ color:#565656;
+ font-weight:800;
+ font-size:1.5rem
+}
+
+.myVideo {
+	position: relative;
+	width: 100%;
+	max-width: 25rem;
+	height: 14.0625rem;
+	background: #333;
+	margin: 4rem auto;
+}
