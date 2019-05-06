@@ -1,0 +1,19 @@
+$rtopRed: #ed1c24;
+
+.rtopVideoPlayerWrapper {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	.rtopVideoPlayer {
+		position: relative;
+		.rtopVideoHolder {
+			position:relative;
+			video {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+			}
+		}
+	}
+}

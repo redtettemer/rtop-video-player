@@ -1,0 +1,13 @@
+.rtopVideoPlayerWrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden; }
+  .rtopVideoPlayerWrapper .rtopVideoPlayer {
+    position: relative; }
+    .rtopVideoPlayerWrapper .rtopVideoPlayer .rtopVideoHolder {
+      position: relative; }
+      .rtopVideoPlayerWrapper .rtopVideoPlayer .rtopVideoHolder video {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden; }

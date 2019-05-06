@@ -47,9 +47,5 @@ header .logoHeader .title {
 
 .myVideo {
 	position: relative;
-	width: 100%;
-	max-width: 25rem;
-	height: 14.0625rem;
-	background: #333;
 	margin: 4rem auto;
 }

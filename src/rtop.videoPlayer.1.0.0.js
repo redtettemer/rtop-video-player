@@ -24,14 +24,16 @@
         showFullScreen: false,
         showCloseBtn: false,
         allowPlayPause: true,
+        keyboardControls: true,
         themeClass: 'rtopTheme',
         lazyload: false,
-        fontAwesomeControlIcons: false,
+        fontAwesomeControlIcons: true,
         playInModal: false,
-        replayFinished: false,
-        closeModalFinished: false,
-        collapseFinished: false,
-        repeatFinished: false,
+        autoPlay: false,
+        loop: false,
+        allowReplay: true,
+        closeModalOnFinish: false,
+        collapseOnFinish: false,
         gtmTagging: false,
         gtmOptions: {}
     }
@@ -39,11 +41,18 @@
     //init player
     vid.prototype.init = function() {
         var _self = this;
-        // wrap everything into new divs
-        _self._element.wrap('<div class="rtopVideoPlayerWrapper"><div class="rtopVideoPlayer ' + _self._settings.themeClass + '"></div>');
 
         // check for video or buid video tags
         _self._video = (_self._element.find('video')[0] === undefined) ? _self.createVideoTags() : _self._element.find('video');
+
+        // wrap everything into new divs
+        _self._video.wrap('<div class="rtopVideoPlayerWrapper"><div class="rtopVideoPlayer ' + _self._settings.themeClass + '"></div>');
+
+        // add a var to make it easier
+        _self._playerWrapper = _self._element.find('.rtopVideoPlayer');
+
+        // wrap video tag into new div
+        _self._video.wrap('<div class="rtopVideoHolder"></div>');
 
         // set random id if not there
         if (!_self._video.attr('id')) {
@@ -56,7 +65,7 @@
         // built necessary controls;
         if (_self._settings.showControls) {
             _self.buildControls();
-        } else if (_self._settings.allowPlayPause) {
+        } else if (!_self._settings.showControls && _self._settings.allowPlayPause) {
             _self.playPauseEvents();
         }
         
@@ -74,77 +83,39 @@
 
     vid.prototype.buildControls = function() {
         var _self = this;
-        _self._element.append('<div class="vidControls"></div>');
+        _self._element.find('.rtopVideoPlayer').append('<div class="vidControls"></div>');
+        // if scrubber, build
         if (_self._settings.showScrubber){
             _self.addProgressBar();
         }
+
+        // if timer, build
         if (_self._settings.showTimer) {
             _self.addTimer();
         }
 
+        // if fullscreen, build
+        if (_self._settings.showFullScreen) {
+            _self.addFullScreen();
+        }
+
+        // if soundcontroll, build
+        if (_self._settings.showSoundControl) {
+            _self.addSoundControl();
+        }
+
+        // if showPlayPauseBtn, build
+        if (_self._settings.showPlayPauseBtn) {
+            _self.addPlayPauseBtn();
+        }
+
+        // if showCloseBtn, build
+        if (_self._settings.showCloseBtn) {
+            _self.addCloseBtn();
+        }
+
         // setup click/mouse events;
-        // _self.clickEvents();
-    }
-
-    // setup click events
-    vid.prototype.clickEvents = function() {
-        var _self = this;
-
-        // close btn if present
-        // _self._element.find('.closeBtn').on('click', function(evt) {
-        //     evt.preventDefault();
-        //     evt.stopPropagation();
-        //     _self.closeVideo();
-        // });
-
-        // full screen if present
-        // _self._element.find('.fa-expand-wide').on('click', function(evt) {
-        //   evt.preventDefault();
-        //   evt.stopPropagation();
-        //   _self.fullScreen();
-        // });
-
-        // video play/pause/repeat on click;
-        // _self._element.find('.vidPlayer').on('click', function(){
-        //     _self._element.hasClass('playing') ? _self.pauseVideo() : _self._element.hasClass('finished') ? _self.replayVideo() : _self.playVideo()
-        // }).on('mousemove', function(){
-        //     if (_self._element.hasClass('hideOverlay')){
-        //         clearTimeout(_self._motion_timer);
-        //        _self._element.removeClass('hideOverlay').find('.vidControls').removeClass('hide');
-        //     }
-        // }).on('mouseout', function(){
-        //     if (!_self._player.paused){
-        //         clearTimeout(_self._motion_timer);
-        //         _self._motion_timer = setTimeout(function() {
-        //             _self._element.addClass('hideOverlay').find('.vidControls').addClass('hide');
-        //         }, _self._settings.controlsHoverSensitivity);
-        //     }
-        // });
-        // this._element.find("#progressholder").mousemove(function(e){
-        //     _self.updateOrb(e);
-        // }).click(function(e) {
-        //     _self.progressClick(e);
-        // });
-    }
-
-    vid.prototype.playPauseEvents = function() {
-        var _self = this;
-        // video play/pause/repeat on click;
-        _self._element.find('.vidPlayer').on('click', function(){
-            _self._element.hasClass('playing') ? _self.pauseVideo() : _self._element.hasClass('finished') ? (_self._settings.replayFinished ? _self.replayVideo() : null) : _self.playVideo();
-        }).on('mousemove', function(){
-            if (_self._element.hasClass('hideOverlay')){
-                clearTimeout(_self._motion_timer);
-               _self._element.removeClass('hideOverlay').find('.vidControls').removeClass('hide');
-            }
-        }).on('mouseout', function(){
-            if (!_self._player.paused){
-                clearTimeout(_self._motion_timer);
-                _self._motion_timer = setTimeout(function() {
-                    _self._element.addClass('hideOverlay').find('.vidControls').addClass('hide');
-                }, _self._settings.controlsHoverSensitivity);
-            }
-        });
+        _self.clickEvents();
     }
 
     // create progress bar/scrubber if present
@@ -159,37 +130,154 @@
         _self._element.find('.vidControls').addClass('hasTimer').append('<div id="timeholder"><span id="currenttime">00:00</span> / <span id="totaltime">00:00</span></div>');
     }
 
-    // close video if present
-    vid.prototype.closeVideo = function() {
+    // create fullscreen btn if present
+    vid.prototype.addFullScreen = function() {
         var _self = this;
-        if (_self._element.hasClass('playing')) {
-            _self.pauseVideo();
+        _self._element.find('.vidControls').addClass('hasFS').append('<div id="fullScreenBtn"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + (_self._settings.fontAwesomeControlIcons ? '<i class="fas fa-expand"></i>' : '') + '</span></div>');
+    }
+
+    // create sound control if present
+    vid.prototype.addSoundControl = function() {
+        var _self = this;
+        _self._element.find('.vidControls').addClass('hasSound').prepend('<div id="soundControl"><span class="muteBtn' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="fas fa-volume-up"></i>' : '') + '</span><span class="soundBars"><span class="soundBar" data-value="0"></span><span class="soundBar" data-value="1"></span><span class="soundBar" data-value="2"></span><span class="soundBar" data-value="3"></span></span></div>');
+    }
+
+    // create play/pause btn if present
+    vid.prototype.addPlayPauseBtn = function() {
+        var _self = this;
+        _self._element.find('.vidControls').addClass('hasPP').prepend('<div id="playPause"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-play-circle"></i>' : '') + '</span></div>');
+    }
+
+    // create close btn if present
+    vid.prototype.addCloseBtn = function() {
+        var _self = this;
+        _self._element.find('.rtopVideoPlayer').append('<div id="closeVideo"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-times-circle"></i>' : '') + '</span></div>');
+    }
+
+    // setup click events
+    vid.prototype.clickEvents = function() {
+        var _self = this;
+
+        // video play/pause/repeat on click; (pull this out so we can have it called without controls)
+        _self.playPauseEvents();
+        // this._element.find("#progressholder").mousemove(function(e){
+        //     _self.updateOrb(e);
+        // }).click(function(e) {
+        //     _self.progressClick(e);
+        // });
+
+        // close btn if present
+        // _self._element.find('.closeBtn').on('click', function(evt) {
+        //     evt.preventDefault();
+        //     evt.stopPropagation();
+        //     _self.closeVideo();
+        // });
+
+        // full screen if present
+        // _self._element.find('.fa-expand-wide').on('click', function(evt) {
+        //   evt.preventDefault();
+        //   evt.stopPropagation();
+        //   _self.fullScreen();
+        // });
+    }
+
+    vid.prototype.playPauseEvents = function() {
+        var _self = this;
+        // if you click video, play/pause or replay on finish
+        _self._element.find('.rtopVideoHolder').on('click', function(){
+            _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
+        }).on('mousemove', function(){
+            // if show controls, show the overlays
+            if (_self._settings.showControls) {
+                if (_self._playerWrapper.hasClass('hideOverlay')){
+                    clearTimeout(_self._motion_timer);
+                   _self._playerWrapper.removeClass('hideOverlay').find('.vidControls').removeClass('hide');
+                }
+            }
+        }).on('mouseout', function(){
+            if (!_self._player.paused){
+                // if show controls, hide the overlays
+                if (_self._settings.showControls) {
+                    clearTimeout(_self._motion_timer);
+                    _self._motion_timer = setTimeout(function() {
+                        _self._playerWrapper.addClass('hideOverlay').find('.vidControls').addClass('hide');
+                    }, _self._settings.controlsHoverSensitivity);
+                }
+            }
+        });
+        // add spacebar control for video
+        if (_self._settings.keyboardControls) {
+            jQuery('body').on('keyup', function(e) {
+                if(e.keyCode == 32){
+                    _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
+                }
+            });
         }
-        _self._element.removeClass('finished').find('.vidControls').removeClass('hide');
-        this.trigger('closeVideo');
+        // if autoplay, play
+        if (_self._settings.autoPlay) {
+            _self._player.autoplay = true;
+            _self._player.muted = true;
+            _self._player.load();
+        }
     }
 
     // play the video
-    vid.prototype.playVideo = function() {
+    vid.prototype.play = function() {
         var _self = this;
-        this._element.addClass('playing').removeClass('paused').find('.vidControls');
-        this._player.play();
-        this._progress = setInterval(function(){_self.updateProgress(_self)}, 100);
-        clearTimeout(_self._motion_timer);
-        _self._motion_timer = setTimeout(function() {
-            _self._element.addClass('hideOverlay').find('.vidControls').addClass('hide');
-        }, 3000);
-        this.trigger('playVideo');
+        // change classes for play/pause
+        _self._playerWrapper.addClass('playing').removeClass('paused');
+        // actually play video
+        _self._player.play();
+        // update progress
+        if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
+            _self._progress = setInterval(function(){
+                _self.updateProgress(_self)
+            }, 100);
+        }
+        // if controls, start timer to hide
+        if (_self._settings.showControls) {
+            clearTimeout(_self._motion_timer);
+            _self._motion_timer = setTimeout(function() {
+                _self._playerWrapper.addClass('hideOverlay').find('.vidControls').addClass('hide');
+            }, _self._settings.controlsHoverSensitivity);
+        }
+        _self.trigger('play');
     }
 
     // pause video
-    vid.prototype.pauseVideo = function() {
+    vid.prototype.pause = function() {
         var _self = this;
-        this._element.removeClass('playing').addClass('paused').removeClass('hideOverlay').find('.vidControls');
-        clearInterval(this._progress);
-        clearTimeout(_self._motion_timer);
-        this._player.pause();
-        this.trigger('pauseVideo');
+        // change classes for play/pause
+        _self._playerWrapper.removeClass('playing').addClass('paused').removeClass('hideOverlay');
+        // stop the timer updating the progress, we dont need it if its paused
+        if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
+            clearInterval(_self._progress);
+        }
+        // if controls, clear timer to show controls
+        if (_self._settings.showControls) {
+            clearTimeout(_self._motion_timer);
+        }
+        // actually pause video
+        _self._player.pause();
+        _self.trigger('pause');
+    }
+
+    // replay video if present
+    vid.prototype.replay = function() {
+        var _self = this;
+        // stop the timer updating the progress, we dont need it if its paused
+        if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
+            clearInterval(_self._progress);
+        }
+        // if controls, clear timer to show controls
+        if (_self._settings.showControls) {
+            clearTimeout(_self._motion_timer);
+        }
+        // change classes for play/pause
+        _self._element.removeClass('finished').find('.vidControls').removeClass('hide');
+        // play video
+        _self.play();
+        _self.trigger('replay');
     }
 
     // toggle full screen if present
@@ -208,14 +296,14 @@
       }
     }
 
-    // replay video if present
-    vid.prototype.replayVideo = function() {
+    // close video if present
+    vid.prototype.closeVideo = function() {
         var _self = this;
-        clearInterval(this._progress);
-        clearTimeout(_self._motion_timer);
-        this.trigger('replayVideo');
-        this._element.removeClass('finished').find('.vidControls').removeClass('hide');
-        this.playVideo();
+        if (_self._element.hasClass('playing')) {
+            _self.pause();
+        }
+        _self._element.removeClass('finished').find('.vidControls').removeClass('hide');
+        this.trigger('closeVideo');
     }
 
     // update progress on scrubber if needed
