@@ -18,7 +18,7 @@
         showControlsOnHover: true,
         controlsHoverSensitivity: 3000,
         showScrubber: true,
-        showTimer: true,
+        showTimer: false,
         showPlayPauseBtn: true,
         showSoundControl: false,
         showFullScreen: false,
@@ -28,10 +28,10 @@
         themeClass: 'rtopTheme',
         lazyload: false,
         fontAwesomeControlIcons: true,
-        playInModal: false,
         autoPlay: false,
         loop: false,
         allowReplay: true,
+        playInModal: false,
         closeModalOnFinish: false,
         collapseOnFinish: false,
         gtmTagging: false,
@@ -135,7 +135,7 @@
     // create sound control if present
     vid.prototype.addSoundControl = function() {
         var _self = this;
-        _self._element.find('.vidControls').addClass('hasSound').append('<div id="soundControl" class="controlBtn"><span class="muteBtn' + (_self._settings.fontAwesomeControlIcons ? ' FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="fas fa-volume-up"></i>' : '') + '</span><span class="soundBars"><span class="soundBar active" data-value="0"></span><span class="soundBar active" data-value="1"></span><span class="soundBar active" data-value="2"></span><span class="soundBar active" data-value="3"></span></span></div>');
+        _self._element.find('.vidControls').addClass('hasSound').append('<div id="soundControl" class="controlBtn"><span class="muteBtn' + (_self._settings.fontAwesomeControlIcons ? ' FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="fas fa-volume-up"></i>' : '') + '</span><span class="soundBars"><span class="soundBar active" data-value=".25"></span><span class="soundBar active" data-value=".50"></span><span class="soundBar active" data-value=".75"></span><span class="soundBar active" data-value="1"></span></span></div>');
     }
 
     // create fullscreen btn if present
@@ -153,7 +153,7 @@
     // create close btn if present
     vid.prototype.addCloseBtn = function() {
         var _self = this;
-        _self._element.find('.rtopVideoPlayer').append('<div id="closeVideo"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-times-circle"></i>' : '') + '</span></div>');
+        _self._element.find('.rtopVideoPlayerWrapper').append('<div id="closeVideo"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-times-circle"></i>' : '') + '</span></div>');
     }
 
     // setup click events
@@ -162,31 +162,49 @@
 
         // video play/pause/repeat on click; (pull this out so we can have it called without controls)
         _self.playPauseEvents();
-        // this._element.find("#progressholder").mousemove(function(e){
-        //     _self.updateOrb(e);
-        // }).click(function(e) {
-        //     _self.progressClick(e);
-        // });
 
-        // close btn if present
-        // _self._element.find('.closeBtn').on('click', function(evt) {
-        //     evt.preventDefault();
-        //     evt.stopPropagation();
-        //     _self.closeVideo();
-        // });
+        // play/puase button in controls
+        _self._playerWrapper.find('#playPause').on('click', function() {
+            _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
+        });
 
-        // full screen if present
-        // _self._element.find('.fa-expand-wide').on('click', function(evt) {
-        //   evt.preventDefault();
-        //   evt.stopPropagation();
-        //   _self.fullScreen();
-        // });
+        // sounds
+        _self._playerWrapper.find('#soundControl').find('.muteBtn').on('click', function() {
+            _self.mute();
+        });
+
+        _self._playerWrapper.find('#soundControl').find('.soundBar').each(function() {
+            jQuery(this).on('click', function() {
+                _self.adjustVolume(jQuery(this).data('value'));
+            });
+        })
+
+        // full screen button
+        _self._playerWrapper.find('#fullScreenBtn').on('click', function() {
+          _self.fullScreen();
+        });
+
+        // close btn
+        _self._element.find('#closeVideo').on('click', function() {
+            _self.close();
+        });
+
+        // update orb on hover and seek on click;
+        _self._playerWrapper.find('#progressholder').on('mousemove', function(e){
+            _self.updateOrb(e);
+        }).on('click', function(e) {
+            e.stopPropagation();
+            // calc position
+            var _pos = e.pageX - _self._element.find("#progressholder").offset().left, 
+            _prop = (_pos + 1) / _self._element.find("#progressholder").width();
+            _self.goTo(_prop * _self._player.duration);
+        });
     }
 
     vid.prototype.playPauseEvents = function() {
         var _self = this;
         // if you click video, play/pause or replay on finish
-        _self._element.find('.rtopVideoHolder').on('click', function(){
+        _self._element.find('.rtopVideoHolder').on('click', function() {
             _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
         }).on('mousemove', function(){
             // if show controls, show the overlays
@@ -265,6 +283,7 @@
         // if controls, clear timer to show controls
         if (_self._settings.showControls) {
             clearTimeout(_self._motion_timer);
+            _self._playerWrapper.removeClass('hideOverlay').find('.vidControls').removeClass('hide');
         }
         // actually pause video
         _self._player.pause();
@@ -281,6 +300,7 @@
         // if controls, clear timer to show controls
         if (_self._settings.showControls) {
             clearTimeout(_self._motion_timer);
+            _self._playerWrapper.removeClass('hideOverlay').find('.vidControls').removeClass('hide');
         }
         // change classes for play/pause
         _self._playerWrapper.removeClass('finished').find('.vidControls').removeClass('hide');
@@ -292,27 +312,105 @@
     // toggle full screen if present
     vid.prototype.fullScreen = function() {
       var _self = this;
+      // check if full screen and either enter or exit as needed
       if (!window.isFs) {
         window.isFs = true;
-        var fn_enter = this._player.requestFullscreen || this._player.webkitEnterFullscreen || this._player.mozRequestFullScreen || this._player.oRequestFullscreen || this._player.msRequestFullscreen;
-        fn_enter.call(this._player);
-        this.trigger('videoEnterFullScreen');
+        var fn_enter = _self._player.requestFullscreen || _self._player.webkitEnterFullscreen || _self._player.mozRequestFullScreen || _self._player.oRequestFullscreen || _self._player.msRequestFullscreen;
+        fn_enter.call(_self._player);
+        _self.trigger('videoEnterFullScreen');
       } else {
         window.isFs = false;
-        var fn_exit = this._player.exitFullScreen || this._player.webkitExitFullScreen || this._player.mozExitFullScreen || this._player.oExitFullScreen || this._player.msExitFullScreen;
-        fn_exit.call(this._player);
-        this.trigger('videoExitFullScreen');
+        var fn_exit = _self._player.exitFullScreen || _self._player.webkitExitFullScreen || _self._player.mozExitFullScreen || _self._player.oExitFullScreen || _self._player.msExitFullScreen;
+        fn_exit.call(_self._player);
+        _self.trigger('videoExitFullScreen');
       }
     }
 
-    // close video if present
-    vid.prototype.closeVideo = function() {
+    // mute video when requested
+    vid.prototype.mute = function() {
         var _self = this;
-        if (_self._element.hasClass('playing')) {
+        // check to see if video is currently muted
+        if (jQuery(_self._player).prop('muted')) {
+            // unmute
+            _self._player.muted = false;
+            // change icons
+            if (_self._settings.fontAwesomeControlIcons) {
+                _self._element.find('.vidControls').find('.muteBtn').html('<i class="fas fa-volume-up"></i>');
+            } else {
+                _self._element.find('.vidControls').find('.muteBtn').removeClass('isMuted');
+            }
+            // add the soundbar active classes back
+            var _flag = true;
+            _self._element.find('.soundBar').each(function() {
+                if (_flag) {
+                    jQuery(this).addClass('active');
+                }
+                if (parseFloat(jQuery(this).data('value')) === parseFloat(_self._element.find('.vidControls').find('.muteBtn').data('current'))) {
+                    _flag = false;
+                }
+            });
+            _self.trigger('unmute');
+        } else {
+            // mute
+            _self._player.muted = true;
+            // change icons
+            if (_self._settings.fontAwesomeControlIcons) {
+                _self._element.find('.vidControls').find('.muteBtn').html('<i class="fas fa-volume-mute"></i>').data('current', _self._element.find('.soundBar.active').last().data('value'));
+            } else {
+                _self._element.find('.vidControls').find('.muteBtn').addClass('isMuted');
+            }
+            // remove the active sound bar classes
+            _self._element.find('.soundBar.active').removeClass('active');
+            _self.trigger('mute');
+        }
+    }
+
+    // change volume
+    vid.prototype.adjustVolume = function(vol) {
+        var _self = this;
+        // if muted, unmute
+        if (jQuery(_self._player).prop('muted')) {
+            _self._player.muted = false;
+        }
+        // set the volume
+        _self._player.volume = parseFloat(vol);
+
+        // adjust sound bar to active
+        var _flag = true;
+        _self._element.find('.soundBar.active').removeClass('active');
+        _self._element.find('.soundBar').each(function() {
+            if (_flag) {
+                jQuery(this).addClass('active');
+            }
+            if (parseFloat(jQuery(this).data('value')) === parseFloat(vol)) {
+                _flag = false;
+            }
+        });
+        _self.trigger('volume_change', {
+            action: {
+                name: 'volume',
+                value: {
+                    vol
+                }
+            }
+        });
+    }
+
+    // close video if present
+    vid.prototype.close = function() {
+        var _self = this;
+        if (_self._playerWrapper.hasClass('playing')) {
             _self.pause();
         }
         _self._playerWrapper.removeClass('finished').find('.vidControls').removeClass('hide');
-        this.trigger('closeVideo');
+        if (_self._settings.playInModal) {
+
+        }
+        // clopase if requested
+        if (_self._settings.collapseOnFinish) {
+            
+        }
+        _self.trigger('closeVideo');
     }
 
     // update progress on scrubber if needed
@@ -327,6 +425,17 @@
         _self._element.find('#totaltime').text(total);
         if(_self._player.ended) {
             _self.videoEnded();
+        }
+        if (_self._settings.gtmTagging) {
+            if (typeof(dataLayer) !== undefined) {
+                for (var i in _self._settings.gtmOptions) {
+                    if (Math.floor((_self._player.currentTime / _self._player.duration) * 100) === parseFloat(_self._settings.gtmOptions[i].time)) {
+                        if (!(_self.checkTaging(_self._settings.gtmOptions[i].name))) {
+                            _self.sendTag(_self._settings.gtmOptions[i].type, name);
+                        }
+                    }
+                }
+            }
         }
         _self.trigger('video_progress', {
             action: {
@@ -352,16 +461,19 @@
     // move orb along if needed
     vid.prototype.updateOrb = function(e){
         var _self = this;
-        var _pos = e.pageX - _self._element.find("#progressholder").offset().left, _prop = _pos / _self._element.find("#progressholder").width(), _prog = _prop * _self._player.duration;
-        _self._element.find("#progressorb").css("margin-left", (_pos - _self._element.find("#progressorb").width()/2) + "px");
+        // calc orb pos
+        var _pos = e.pageX - _self._playerWrapper.find("#progressholder").offset().left, 
+        // get percent
+        _prop = _pos / _self._playerWrapper.find("#progressholder").width(), 
+        // percent * time = where orb should be
+        _prog = _prop * _self._player.duration;
+        _self._element.find("#progressorb").css("left", (_pos + _self._element.find("#progressorb").width() / 12) + "px");
     }
 
-    // update orb to scubber location click
-    vid.prototype.progressClick = function(e){
+    // go to certain time in sec
+    vid.prototype.goTo = function(sec){
         var _self = this;
-        e.stopPropagation();
-        var _pos = e.pageX - _self._element.find("#progressholder").offset().left, _prop = (_pos + 1) / _self._element.find("#progressholder").width(), _prog = _prop * _self._player.duration;
-        _self._player.currentTime = _prog;
+        _self._player.currentTime = sec;
         this.updateProgress(_self);
     }
 
@@ -372,7 +484,7 @@
         clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
         setTimeout(function(){
-            _self._settings.collapseFinished ? _self.closeVideo() : _self._player.load()
+            _self._settings.collapseOnFinish ? _self.close() : _self._player.load()
         }, 300);
         this.trigger('videoEnded');
     }

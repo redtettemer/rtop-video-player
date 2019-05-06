@@ -26,9 +26,9 @@ $desktop: 1024px;
 .rtopVideoPlayerWrapper {
     position: relative;
     width: 100%;
-    overflow: hidden;
     .rtopVideoPlayer {
         position: relative;
+        overflow: hidden;
         .rtopVideoHolder {
             position: relative;
             cursor: pointer;
@@ -114,6 +114,7 @@ $desktop: 1024px;
 			    -ms-user-select: none;
 			    user-select: none;
 			    cursor: pointer;
+			    z-index: 3;
             }
             #playPause {
             	text-align: center;
@@ -129,12 +130,15 @@ $desktop: 1024px;
                 margin: 0 20px 0 0;
                 @include transition(.3s all);
                 border-radius: 0;
+                max-width: calc(100% - 140px);
+                z-index: 1;
             }
             #fullvideoprogress {
                 background: rgba($default, .2);
                 width: 100%;
                 height: 2px;
                 top: 0;
+                left: 0;
                 bottom: 0;
                 position: absolute;
                 margin: auto 0;
@@ -160,11 +164,11 @@ $desktop: 1024px;
                 height: 2px;
                 background: rgba(255,255,255,1);
                 width: 0;
-                @include transition(.3s all);
+                @include transition(.3s all ease-in);
                 border-radius: 4px;
             }
             #progressholder:hover #progressorb {
-                display: block;
+                background-color: rgba($highlight, 1);
             }
             #progressorb {
                 position: absolute;
@@ -174,17 +178,19 @@ $desktop: 1024px;
                 width: 16px;
                 height: 16px;
                 border-radius: 10px;
-                background: rgba($highlight,0.9);
-                display: none;
+                background-color: rgba($highlight, 0);
+                @include transition(.3s background-color ease-in);
             }
             #timeholder {
             	font-size: 13px;
             	max-width: 120px;
             	cursor: default;
+            	text-align: center;
 
             }
             #soundControl {
             	max-width: 100px;
+            	text-align: center;
             	.muteBtn {
             		position: relative;
 	            	span {
@@ -200,7 +206,7 @@ $desktop: 1024px;
             			position: relative;
             			display: inline-block;
             			width: 5px;
-            			margin-left: 2.5px;
+            			margin-left: 2px;
             			&:nth-child(1) {
             				height: 5px;
             			}
@@ -215,8 +221,14 @@ $desktop: 1024px;
             			}
             			background-color: rgba($default, .5);
             			@include transition(.3s all ease-in);
+            			&:hover {
+            				background-color: rgba($default, 1);
+            			}
             			&.active {
             				background-color: rgba($default, 1);
+            				&:hover {
+            					background-color: rgba($default, .5);
+            				}
             			}
             		}
             	}
@@ -241,10 +253,15 @@ $desktop: 1024px;
                 opacity: 1;
             }
         }
-        &.paused {
-            .vidControls {
-                opacity: 1;
+        &.closing {
+        	.vidControls {
+                opacity: 0;
             }
+            .rtopVideoHolder {
+                &:before {
+                    opacity: 0;
+                }
+            }		
         }
         &.finished {
             .rtopVideoHolder {
@@ -264,10 +281,44 @@ $desktop: 1024px;
                 }
             }
         }
-        #closeVideo {
-        	position: absolute;
-        	top: -20px;
-        	right: -20px;
+        &.paused {
+            .vidControls {
+                opacity: 1;
+            }
+            .rtopVideoHolder {
+                &:before {
+                	opacity: 1;
+                    animation: rtopVideoFadeOut 1.6s forwards;
+                }
+            }
         }
     }
+    #closeVideo {
+       	position: absolute;
+        top: -40px;
+        right: -30px;
+        cursor: pointer;
+        span {
+            &.FAIcon {
+            	font-size: 30px;
+            	color:#000;
+            	@include transition(.3s all ease-in);
+            	&:hover {
+            		color:$highlight;
+            	}
+            }
+        }
+    }
+}
+
+@keyframes rtopVideoFadeOut {
+  0% {
+  	opacity: 1;
+  }
+  50% {
+  	opacity: 1;	
+  }
+  100% {
+    opacity: 0;
+  }
 }

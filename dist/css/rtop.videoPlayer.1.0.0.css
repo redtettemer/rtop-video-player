@@ -3,10 +3,10 @@
 /* common mixins */
 .rtopVideoPlayerWrapper {
   position: relative;
-  width: 100%;
-  overflow: hidden; }
+  width: 100%; }
   .rtopVideoPlayerWrapper .rtopVideoPlayer {
-    position: relative; }
+    position: relative;
+    overflow: hidden; }
     .rtopVideoPlayerWrapper .rtopVideoPlayer .rtopVideoHolder {
       position: relative;
       cursor: pointer;
@@ -90,7 +90,8 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        cursor: pointer; }
+        cursor: pointer;
+        z-index: 3; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #playPause {
         text-align: center;
         max-width: 60px; }
@@ -103,12 +104,15 @@
         -moz-transition: 0.3s all;
         -ms-transition: 0.3s all;
         transition: 0.3s all;
-        border-radius: 0; }
+        border-radius: 0;
+        max-width: calc(100% - 140px);
+        z-index: 1; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #fullvideoprogress {
         background: rgba(255, 255, 255, 0.2);
         width: 100%;
         height: 2px;
         top: 0;
+        left: 0;
         bottom: 0;
         position: absolute;
         margin: auto 0; }
@@ -135,13 +139,13 @@
         height: 2px;
         background: white;
         width: 0;
-        -webkit-transition: 0.3s all;
-        -moz-transition: 0.3s all;
-        -ms-transition: 0.3s all;
-        transition: 0.3s all;
+        -webkit-transition: 0.3s all ease-in;
+        -moz-transition: 0.3s all ease-in;
+        -ms-transition: 0.3s all ease-in;
+        transition: 0.3s all ease-in;
         border-radius: 4px; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #progressholder:hover #progressorb {
-        display: block; }
+        background-color: #ed1c24; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #progressorb {
         position: absolute;
         top: 0;
@@ -150,14 +154,19 @@
         width: 16px;
         height: 16px;
         border-radius: 10px;
-        background: rgba(237, 28, 36, 0.9);
-        display: none; }
+        background-color: rgba(237, 28, 36, 0);
+        -webkit-transition: 0.3s background-color ease-in;
+        -moz-transition: 0.3s background-color ease-in;
+        -ms-transition: 0.3s background-color ease-in;
+        transition: 0.3s background-color ease-in; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #timeholder {
         font-size: 13px;
         max-width: 120px;
-        cursor: default; }
+        cursor: default;
+        text-align: center; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl {
-        max-width: 100px; }
+        max-width: 100px;
+        text-align: center; }
         .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl .muteBtn {
           position: relative; }
           .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl .muteBtn span.FAIcon {
@@ -169,7 +178,7 @@
             position: relative;
             display: inline-block;
             width: 5px;
-            margin-left: 2.5px;
+            margin-left: 2px;
             background-color: rgba(255, 255, 255, 0.5);
             -webkit-transition: 0.3s all ease-in;
             -moz-transition: 0.3s all ease-in;
@@ -183,8 +192,12 @@
               height: 10px; }
             .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl .soundBars .soundBar:nth-child(4) {
               height: 12.5px; }
+            .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl .soundBars .soundBar:hover {
+              background-color: white; }
             .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl .soundBars .soundBar.active {
               background-color: white; }
+              .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #soundControl .soundBars .soundBar.active:hover {
+                background-color: rgba(255, 255, 255, 0.5); }
       .rtopVideoPlayerWrapper .rtopVideoPlayer .vidControls #fullScreenBtn {
         max-width: 60px;
         text-align: center; }
@@ -194,8 +207,10 @@
       opacity: 0; }
     .rtopVideoPlayerWrapper .rtopVideoPlayer.playing .vidControls {
       opacity: 1; }
-    .rtopVideoPlayerWrapper .rtopVideoPlayer.paused .vidControls {
-      opacity: 1; }
+    .rtopVideoPlayerWrapper .rtopVideoPlayer.closing .vidControls {
+      opacity: 0; }
+    .rtopVideoPlayerWrapper .rtopVideoPlayer.closing .rtopVideoHolder:before {
+      opacity: 0; }
     .rtopVideoPlayerWrapper .rtopVideoPlayer.finished .rtopVideoHolder:before {
       background-image: url("../icons/reply-solid.svg"); }
     .rtopVideoPlayerWrapper .rtopVideoPlayer.finished .vidControls {
@@ -204,7 +219,30 @@
       cursor: none; }
       .rtopVideoPlayerWrapper .rtopVideoPlayer.hideOverlay .rtopVideoHolder:hover:before, .rtopVideoPlayerWrapper .rtopVideoPlayer.hideOverlay .rtopVideoHolder:before {
         opacity: 0; }
-    .rtopVideoPlayerWrapper .rtopVideoPlayer #closeVideo {
-      position: absolute;
-      top: -20px;
-      right: -20px; }
+    .rtopVideoPlayerWrapper .rtopVideoPlayer.paused .vidControls {
+      opacity: 1; }
+    .rtopVideoPlayerWrapper .rtopVideoPlayer.paused .rtopVideoHolder:before {
+      opacity: 1;
+      animation: rtopVideoFadeOut 1.6s forwards; }
+  .rtopVideoPlayerWrapper #closeVideo {
+    position: absolute;
+    top: -40px;
+    right: -30px;
+    cursor: pointer; }
+    .rtopVideoPlayerWrapper #closeVideo span.FAIcon {
+      font-size: 30px;
+      color: #000;
+      -webkit-transition: 0.3s all ease-in;
+      -moz-transition: 0.3s all ease-in;
+      -ms-transition: 0.3s all ease-in;
+      transition: 0.3s all ease-in; }
+      .rtopVideoPlayerWrapper #closeVideo span.FAIcon:hover {
+        color: #ed1c24; }
+
+@keyframes rtopVideoFadeOut {
+  0% {
+    opacity: 1; }
+  50% {
+    opacity: 1; }
+  100% {
+    opacity: 0; } }
