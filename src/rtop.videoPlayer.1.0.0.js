@@ -46,7 +46,7 @@
         _self._video = (_self._element.find('video')[0] === undefined) ? _self.createVideoTags() : _self._element.find('video');
 
         // wrap everything into new divs
-        _self._video.wrap('<div class="rtopVideoPlayerWrapper"><div class="rtopVideoPlayer ' + _self._settings.themeClass + '"></div>');
+        _self._video.wrap('<div class="rtopVideoPlayerWrapper"><div class="rtopVideoPlayer ' + _self._settings.themeClass + (_self._settings.fontAwesomeControlIcons ? ' hasFA' : '') +'"></div>');
 
         // add a var to make it easier
         _self._playerWrapper = _self._element.find('.rtopVideoPlayer');
@@ -67,6 +67,8 @@
             _self.buildControls();
         } else if (!_self._settings.showControls && _self._settings.allowPlayPause) {
             _self.playPauseEvents();
+        } else if (!_self._settings.showControls && !_self._settings.allowPlayPause && _self._settings.autoPlay) {
+            _self.startAutoPlay();
         }
         
         // send trigger that player has loaded
@@ -83,7 +85,7 @@
 
     vid.prototype.buildControls = function() {
         var _self = this;
-        _self._element.find('.rtopVideoPlayer').append('<div class="vidControls"></div>');
+        _self._element.find('.rtopVideoPlayer').append('<div class="vidControls' + (_self._settings.fontAwesomeControlIcons ? ' hasFAIcons' : '') + '"></div>');
         // if scrubber, build
         if (_self._settings.showScrubber){
             _self.addProgressBar();
@@ -94,14 +96,14 @@
             _self.addTimer();
         }
 
-        // if fullscreen, build
-        if (_self._settings.showFullScreen) {
-            _self.addFullScreen();
-        }
-
         // if soundcontroll, build
         if (_self._settings.showSoundControl) {
             _self.addSoundControl();
+        }
+
+        // if fullscreen, build
+        if (_self._settings.showFullScreen) {
+            _self.addFullScreen();
         }
 
         // if showPlayPauseBtn, build
@@ -121,31 +123,31 @@
     // create progress bar/scrubber if present
     vid.prototype.addProgressBar = function() {
         var _self = this;
-        _self._element.find('.vidControls').addClass('hasProgressBar').append('<div id="progressholder"><div id="fullvideoprogress"></div><div id="buffered"></div><div id="progress"></div><div id="progressorb"></div></div>');
+        _self._element.find('.vidControls').addClass('hasProgressBar').append('<div id="progressholder" class="controlBtn"><div id="fullvideoprogress"></div><div id="buffered"></div><div id="progress"></div><div id="progressorb"></div></div>');
     }
 
     // create timer if present
     vid.prototype.addTimer = function() {
         var _self = this;
-        _self._element.find('.vidControls').addClass('hasTimer').append('<div id="timeholder"><span id="currenttime">00:00</span> / <span id="totaltime">00:00</span></div>');
-    }
-
-    // create fullscreen btn if present
-    vid.prototype.addFullScreen = function() {
-        var _self = this;
-        _self._element.find('.vidControls').addClass('hasFS').append('<div id="fullScreenBtn"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + (_self._settings.fontAwesomeControlIcons ? '<i class="fas fa-expand"></i>' : '') + '</span></div>');
+        _self._element.find('.vidControls').addClass('hasTimer').append('<div id="timeholder" class="controlBtn"><span id="currenttime">00:00</span> / <span id="totaltime">00:00</span></div>');
     }
 
     // create sound control if present
     vid.prototype.addSoundControl = function() {
         var _self = this;
-        _self._element.find('.vidControls').addClass('hasSound').prepend('<div id="soundControl"><span class="muteBtn' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="fas fa-volume-up"></i>' : '') + '</span><span class="soundBars"><span class="soundBar" data-value="0"></span><span class="soundBar" data-value="1"></span><span class="soundBar" data-value="2"></span><span class="soundBar" data-value="3"></span></span></div>');
+        _self._element.find('.vidControls').addClass('hasSound').append('<div id="soundControl" class="controlBtn"><span class="muteBtn' + (_self._settings.fontAwesomeControlIcons ? ' FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="fas fa-volume-up"></i>' : '') + '</span><span class="soundBars"><span class="soundBar active" data-value="0"></span><span class="soundBar active" data-value="1"></span><span class="soundBar active" data-value="2"></span><span class="soundBar active" data-value="3"></span></span></div>');
+    }
+
+    // create fullscreen btn if present
+    vid.prototype.addFullScreen = function() {
+        var _self = this;
+        _self._element.find('.vidControls').addClass('hasFS').append('<div id="fullScreenBtn" class="controlBtn"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + (_self._settings.fontAwesomeControlIcons ? '<i class="fas fa-expand"></i>' : '') + '</span></div>');
     }
 
     // create play/pause btn if present
     vid.prototype.addPlayPauseBtn = function() {
         var _self = this;
-        _self._element.find('.vidControls').addClass('hasPP').prepend('<div id="playPause"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-play-circle"></i>' : '') + '</span></div>');
+        _self._element.find('.vidControls').addClass('hasPP').prepend('<div id="playPause" class="controlBtn"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-play-circle"></i>' : '') + '</span></div>');
     }
 
     // create close btn if present
@@ -215,10 +217,17 @@
         }
         // if autoplay, play
         if (_self._settings.autoPlay) {
-            _self._player.autoplay = true;
-            _self._player.muted = true;
-            _self._player.load();
+            _self.startAutoPlay();
         }
+    }
+
+    // if autoplay, start auto play
+    vid.prototype.startAutoPlay = function() {
+        var _self = this;
+        _self._playerWrapper.addClass('noPlayPause');
+        _self._player.autoplay = true;
+        _self._player.muted = true;
+        _self._player.load();
     }
 
     // play the video
@@ -274,7 +283,7 @@
             clearTimeout(_self._motion_timer);
         }
         // change classes for play/pause
-        _self._element.removeClass('finished').find('.vidControls').removeClass('hide');
+        _self._playerWrapper.removeClass('finished').find('.vidControls').removeClass('hide');
         // play video
         _self.play();
         _self.trigger('replay');
@@ -302,7 +311,7 @@
         if (_self._element.hasClass('playing')) {
             _self.pause();
         }
-        _self._element.removeClass('finished').find('.vidControls').removeClass('hide');
+        _self._playerWrapper.removeClass('finished').find('.vidControls').removeClass('hide');
         this.trigger('closeVideo');
     }
 
@@ -359,8 +368,8 @@
     // end of video
     vid.prototype.videoEnded = function() {
         var _self = this;
-        this._element.removeClass('playing').removeClass('paused').addClass('finished').removeClass('hideOverlay').find('.vidControls').addClass('hide');
-        clearInterval(this._progress);
+        _self._playerWrapper.removeClass('playing').removeClass('paused').addClass('finished').removeClass('hideOverlay').find('.vidControls').addClass('hide');
+        clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
         setTimeout(function(){
             _self._settings.collapseFinished ? _self.closeVideo() : _self._player.load()
