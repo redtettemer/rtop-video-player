@@ -147,7 +147,7 @@
     // create play/pause btn if present
     vid.prototype.addPlayPauseBtn = function() {
         var _self = this;
-        _self._element.find('.vidControls').addClass('hasPP').prepend('<div id="playPause" class="controlBtn"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-play-circle"></i>' : '') + '</span></div>');
+        _self._element.find('.vidControls').addClass('hasPP').prepend('<div id="playPause" class="controlBtn"><span class="' + (_self._settings.fontAwesomeControlIcons ? 'FAIcon' : 'localAsset') + '">' + ( _self._settings.fontAwesomeControlIcons ? '<i class="far fa-pause-circle"></i>' : '') + '</span></div>');
     }
 
     // create close btn if present
@@ -204,6 +204,16 @@
     vid.prototype.playPauseEvents = function() {
         var _self = this;
         // if you click video, play/pause or replay on finish
+        if (_self._settings.playInModal) {
+            _self._element.find('.rtopVideoHolder').on('click', function(evt) {
+                // if (!jQuery('.rtopVideoModal')[0]) {
+                //     evt.preventDefault();
+                //     evt.stopPropagation();
+                //     jQuery('body').append('<div class="rtopVideoModal"></div>');
+                //     _self.openInModal();
+                // }
+            })    
+        }
         _self._element.find('.rtopVideoHolder').on('click', function() {
             _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
         }).on('mousemove', function(){
@@ -255,6 +265,12 @@
         _self._playerWrapper.addClass('playing').removeClass('paused');
         // actually play video
         _self._player.play();
+        // change icons;
+        if (_self._settings.fontAwesomeControlIcons) {
+            _self._playerWrapper.find('#playPause').html('<span class="FAIcon"><i class="far fa-pause-circle"></i></span>');
+        } else {
+            _self._playerWrapper.find('#playPause').addClass('isPlaying');
+        }
         // update progress
         if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
             _self._progress = setInterval(function(){
@@ -276,6 +292,11 @@
         var _self = this;
         // change classes for play/pause
         _self._playerWrapper.removeClass('playing').addClass('paused').removeClass('hideOverlay');
+        if (_self._settings.fontAwesomeControlIcons) {
+            _self._playerWrapper.find('#playPause').html('<span class="FAIcon"><i class="far fa-play-circle"></i></span>');
+        } else {
+            _self._playerWrapper.find('#playPause').removeClass('isPlaying');
+        }
         // stop the timer updating the progress, we dont need it if its paused
         if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
             clearInterval(_self._progress);
@@ -481,9 +502,16 @@
         clearTimeout(_self._motion_timer);
         setTimeout(function(){
             _self._settings.closeModalOnFinish ? _self.close() : _self._player.load()
-        }, 300);
+        }, _self._settings.controlsHoverSensitivity);
         this.trigger('videoEnded');
     }
+
+    // open player in modal
+    vid.prototype.openInModal = function() {
+        var _self = this;
+        _self.destroy();
+        jQuery('.rtopVideoModal').append(_self._element.clone());
+    };
 
     // random video id if needed
     vid.prototype.generateRandomId = function() {
@@ -519,10 +547,10 @@
     // destroy plugin
     vid.prototype.destroy = function() {
         var _self = this;
-        this.trigger('destroy_player');
-        clearInterval(this._progress);
+        _self._player.pause();
+        clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
-        jQuery(this._element).removeData("vid.RTOP_VideoPlayer")
+        jQuery(_self._element).removeData("vid.RTOP_VideoPlayer");
     }
 
     // update options
