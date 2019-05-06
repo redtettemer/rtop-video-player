@@ -406,10 +406,6 @@
         if (_self._settings.playInModal) {
 
         }
-        // clopase if requested
-        if (_self._settings.collapseOnFinish) {
-            
-        }
         _self.trigger('closeVideo');
     }
 
@@ -484,7 +480,7 @@
         clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
         setTimeout(function(){
-            _self._settings.collapseOnFinish ? _self.close() : _self._player.load()
+            _self._settings.closeModalOnFinish ? _self.close() : _self._player.load()
         }, 300);
         this.trigger('videoEnded');
     }
