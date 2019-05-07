@@ -12,7 +12,7 @@
 	<link rel="stylesheet" href="example.css" />
 	
 	<!-- required video player styles -->
-	<link rel="stylesheet" href="../dist/css/rtop.videoPlayer.1.0.0.css" />
+	<link rel="stylesheet" href="../dist/css/rtop.videoPlayer.1.0.0.min.css" />
 	
 	<!-- font awesome if optional but highly recommended -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -21,7 +21,7 @@
 	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
 	
 	<!-- required video player js source -->
-	<script type="text/javascript" src="../src/rtop.videoPlayer.1.0.0.js"></script>
+	<script type="text/javascript" src="../dist/js/rtop.videoPlayer.1.0.0.min.js"></script>
 
 </head>
 <body>
@@ -35,22 +35,17 @@
 					</div>
 				</div>
 			</header>
-			<div class="row">
-				<div class="col col-12 col-md-6">
-					<div class="myVideo" id="my_video" data-video="sample.mp4" data-poster="sample.jpg" data-type='video/mp4'>
-					</div>
-				</div>
+			<div class="exampleVideoPage">
+				<div class="myVideo" id="my_video" data-video="sample.mp4" data-poster="sample.jpg" data-type='video/mp4'></div>
 			</div>
 		</div>
 	</div>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			$('#my_video').RTOP_VideoPlayer({
-				// showFullScreen: true,
-				// showTimer: true,
-				// showSoundControl: true,
-				// playInModal: true,
-				// showCloseBtn: true
+			var vid = $('#my_video').RTOP_VideoPlayer({
+				showFullScreen: true,
+				showTimer: true,
+				showSoundControl: true
 			});
 		});
 	</script>

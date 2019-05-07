@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RTOP Video Player Example</title>
+	<meta charSet="utf-8" />
+	<meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<link rel="icon" type="image/png" href="https://s3.amazonaws.com/images-charts-stats/favicon.ico">
+	<meta name="referrer" content="always" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="example/example.css" />
+	
+	<!-- required video player styles -->
+	<link rel="stylesheet" href="dist/css/rtop.videoPlayer.1.0.0.min.css" />
+	
+	<!-- font awesome if optional but highly recommended -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+	<!-- jquery is required (any version) -->
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+	
+	<!-- required video player js source -->
+	<script type="text/javascript" src="dist/js/rtop.videoPlayer.1.0.0.min.js"></script>
+
+</head>
+<body>
+	<div class="siteWrapper">
+		<div class="rtopVideoDocs">
+			<header>
+				<div class="innerPadding">
+					<div class="logoHeader">
+						<span><img src="https://s3.amazonaws.com/images-charts-stats/rtop_logo_black.svg"></span>
+						<span class="title">RTO+P Documentation</span>
+					</div>
+				</div>
+			</header>
+			<div class="row">
+				<div class="col col-12 col-md-6">
+					<div class="exampleVideo">
+						<div class="myVideo" id="my_video" data-video="./example/sample.mp4" data-poster="./example/sample.jpg" data-type='video/mp4'></div>
+					</div>
+				</div>
+				<div class="col col-12 col-md-6 documentation">
+					<div class="innerPadding">
+						<div class="titleBlock centerText">
+							<h1>RTO+P Video Player</h1>
+							<h5>jQuery Plugin to play HTML5 video across all browsers</h5>
+						</div>
+						<div class="block">
+							<h3 class="blockHeadline">Getting Started</h3>
+							<div class="optionBlock">
+								<h4 class="blockSubHeadline">Include CSS</h4>
+								<div class="hint">
+									<p>Include either the compiled CSS file in the <i>`dist/css`</i> folder or the uncompiled SCSS file in the <i>`src`</i> folder. Font Awesome 5 is optional but highly recommended!</p>
+								</div>
+								<pre>
+<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"rtop.videoPlayer.1.0.0.min.css"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://use.fontawesome.com/releases/v5.8.1/css/all.css"</span> </span><span class="hljs-attribute">integrity</span>=<span class="hljs-value">"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"</span><span class="hljs-attribute">crossorigin</span>=<span class="hljs-value">"anonymous"</span>&gt;</code>
+								</pre>
+							</div>
+							<div class="optionBlock">
+								<h4 class="blockSubHeadline">Include JS</h4>
+								<div class="hint">
+									<p>Include either the minified file in the <i>`dist/js`</i> folder or the expanded file in the <i>`src`</i> folder. jQuery is required! But any version of jQuery will work</p>
+								</div>
+								<pre>
+<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"https://code.jquery.com/jquery-3.4.1.slim.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"dist/js/rtop.videoPlayer.1.0.0.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span></code>
+								</pre>
+							</div>
+							<div class="optionBlock">
+								<h4 class="blockSubHeadline">Set HTML</h4>
+								<div class="hint">
+									<p>You can either use an HTML5 video tag or the preferred option is lazy loading option by adding the video and poster source as data attributes. By lazy loading, you increase page load speed and dont load a video file until its needed.</p>
+								</div>
+								<pre><code class=" hljs xml"><span class="hljs-comment">&lt;!-- HTML5 VIDEO TAG --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"my_video"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-title">video</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"sample.mp4"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"video/mp4"</span> <span class="hljs-attribute">poster</span>=<span class="hljs-value">"sample.jpg"</span> <span class="hljs-attribute">playsinline</span>&gt;</span>
+  	<span class="hljs-tag">&lt;<span class="hljs-title">source</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"sample.mp4"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"video/mp4"</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-title">video</span>&gt;</span>    
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+<span class="hljs-comment">&lt;!-- LAZY LOAD --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"my_video"</span> <span class="hljs-attribute">data-video</span>=<span class="hljs-value">"sample.mp4"</span> <span class="hljs-attribute">data-type</span>=<span class="hljs-value">"video/mp4"</span> <span class="hljs-attribute">data-poster</span>=<span class="hljs-value">"sample.jpg"</span>&gt;</span>    
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+</code></pre>
+							</div>
+							<div class="optionBlock">
+								<h4 class="blockSubHeadline">Call the plugin</h4>
+								<pre><code class=" hljs javascript">$(document).ready(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+  $(<span class="hljs-string">"#my_video"</span>).RTOP_VideoPlayer();
+});</code></pre>
+							</div>
+						</div>
+						<div class="block">
+							<h3 class="blockHeadline">Options</h3>
+							<div class="optionBlock">
+								<h4>showControls</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Show the player controls, turn off if you want the player to play without user interaction.</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showControlsOnHover</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Allow controls to display on hover</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showControlsOnHover</h4>
+								<p>Type: <code>Number</code></p>
+								<p>Default: <code class="default">3000</code></p>
+								<p>Milliseconds after mouse move ends before the video controls hide</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showScrubber</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Show the scubber/progress bar for the video</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showTimer</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Show the time elapsed and total time of video</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showPlayPauseBtn</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Show the play/pause button in the controls</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showSoundControl</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Show mute button and volume steps</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showSoundControl</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Show fullscreen button</p>
+							</div>
+							<div class="optionBlock">
+								<h4>keyboardControls</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Allow space bar to play/pause video</p>
+							</div>
+							<div class="optionBlock">
+								<h4>themeClass</h4>
+								<p>Type: <code>String</code></p>
+								<p>Default: <code class="default">'rtopTheme'</code></p>
+								<p>Class added to parent div to allow for easier custom skins</p>
+							</div>
+							<div class="optionBlock">
+								<h4>fontAwesomeControlIcons</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Use font awesome icons for all the control icons, this is optional, but highlight recommended. You need to also include the Font Awesome 5 CSS. If this is disabled, you will need to add your icons into the CSS as background images.</p>
+							</div>
+							<div class="optionBlock">
+								<h4>autoPlay</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Auto play video, but will mute video</p>
+							</div>
+							<div class="optionBlock">
+								<h4>allowPlayPause</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>If a user can play/pause the video, used with the autoplay feature</p>
+							</div>
+							<div class="optionBlock">
+								<h4>loop</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Automatically replay video</p>
+							</div>
+							<div class="optionBlock">
+								<h4>allowReplay</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">true</code></p>
+								<p>Allow user to replay video once finished</p>
+							</div>
+							<div class="optionBlock">
+								<h4>allowReplay</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Open video in a fixed position modal</p>
+							</div>
+							<div class="optionBlock">
+								<h4>showCloseBtn</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Show a close button for the modal that will close the modal on user click</p>
+							</div>
+							<div class="optionBlock">
+								<h4>closeModalOnFinish</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Automatically close modal when video has finished</p>
+							</div>
+							<div class="optionBlock">
+								<h4>gtmTagging</h4>
+								<p>Type: <code>Boolean</code></p>
+								<p>Default: <code class="default">false</code></p>
+								<p>Send GTM tags, GTM must be set up on the page to work</p>
+							</div>
+							<div class="optionBlock">
+								<h4>gtmTagging</h4>
+								<p>Type: <code>Object</code></p>
+								<p>Default: <code class="default">{}</code></p>
+								<p>An object to hold the information for the tag that should be sent during the video. Each tag should be its own object with the keys: <code>time</code>, <code>name</code>,<code>type</code></p>
+							</div>
+						</div>
+						<div class="block">
+							<h3 class="blockHeadline">Events</h3>
+							<div class="hint">
+								<p>Events are provided by the video player in must locations. This gives you the ability to listen for any changes and perform your own actions.</p>
+							</div>
+							<pre><code class=" hljs javascript"><span class="hljs-keyword">var</span> vid = $(<span class="hljs-string">'#my_video'</span>);
+vid.RTOP_VideoPlayer();
+<span class="hljs-comment">// Listen to video events:</span>
+vid.on(<span class="hljs-string">'play.vid.rtop_videoplayer'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> {</span>
+    ...
+})</code></pre>
+							<div class="hint" style="margin-top: 2rem;">
+								<p>You could also trigger events by yourself to control the video player</p>
+							</div>
+<pre><code class=" hljs javascript"><span class="hljs-keyword">var</span> vid = $(<span class="hljs-string">'#my_video'</span>);
+vid.RTOP_VideoPlayer();
+
+<span class="hljs-comment">// play video</span>
+vid.RTOP_VideoPlayer('pause');
+
+<span class="hljs-comment">// go to time (in sec)</span>
+vid.RTOP_VideoPlayer('goTo', 10);
+
+<span class="hljs-comment">// pause video</span>
+vid.RTOP_VideoPlayer('pause');
+
+<span class="hljs-comment">// close modal</span>
+vid.RTOP_VideoPlayer('close');
+</code></pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var vid = $('#my_video').RTOP_VideoPlayer({
+				showFullScreen: true,
+				showTimer: true,
+				showSoundControl: true
+			});
+		});
+	</script>
+</body>
+</html>

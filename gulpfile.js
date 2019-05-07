@@ -28,8 +28,8 @@
            .src([config.src])
            .pipe(plumber({errorHandler: onError}))
            .pipe(combine())
-           .pipe(concat('rtop.videoPlayer.1.0.0.scss'))
-           .pipe(sass().on('error', sass.logError));
+           .pipe(concat('rtop.videoPlayer.1.0.0.min.scss'))
+           .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError));
     
        return stream
            .pipe(gulp.dest('./dist/css/'));

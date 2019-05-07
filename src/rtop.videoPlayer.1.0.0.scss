@@ -44,7 +44,6 @@ $desktop: 1024px;
                 left: 0;
                 z-index: 1;
                 background-color: rgba(0,0,0,.20);
-                background-image: url('../icons/play-circle-regular.svg');
                 background-size: 67px 67px;
                 background-repeat: no-repeat;
                 background-position: center center;
@@ -52,17 +51,32 @@ $desktop: 1024px;
                 @include transition(.3s all ease-in);
                 cursor: pointer;
             }
+            &.hasFAIcons {
+                &:after {
+                    @include vertical-align();
+                    position: absolute;
+                    content: "\f144";
+                    opacity: 1;
+                    @include transition(.3s all ease-in);
+                    font-family: "Font Awesome 5 Free";
+                    font-size: 80px;
+                    color: $default;
+                    width: 100%;
+                    text-align: center;
+                    z-index: 4;
+                }
+            }
             *::-webkit-media-controls-panel {
                 display: none!important;
-                -webkit-appearance: none;
+                -webkit-appearance: none !important;
             }
             *::--webkit-media-controls-play-button {
                 display: none!important;
-                -webkit-appearance: none;
+                -webkit-appearance: none !important;
             }
             *::-webkit-media-controls-start-playback-button {
                 display: none!important;
-                -webkit-appearance: none;
+                -webkit-appearance: none !important;
             }
             video {
                 position: absolute;
@@ -125,6 +139,10 @@ $desktop: 1024px;
             		}
             	}
             }
+            #playPauseHolder {
+                max-width: 60px;
+                cursor: default;
+            }
             #progressholder {
                 position: relative;
                 margin: 0 20px 0 0;
@@ -132,6 +150,10 @@ $desktop: 1024px;
                 border-radius: 0;
                 max-width: calc(100% - 140px);
                 z-index: 1;
+            }
+            #progressSpacer {
+                max-width: calc(100% - 140px);
+                cursor:default;
             }
             #fullvideoprogress {
                 background: rgba($default, .2);
@@ -186,10 +208,16 @@ $desktop: 1024px;
             	max-width: 120px;
             	cursor: default;
             	text-align: center;
+            	@media screen and (max-width: $tablet) {
+            		display:none;
+            	}
 
             }
             #soundControl {
             	max-width: 100px;
+            	@media screen and (max-width: $tablet) {
+            		max-width: 60px;
+            	}
             	text-align: center;
             	.muteBtn {
             		position: relative;
@@ -202,6 +230,9 @@ $desktop: 1024px;
             	.soundBars {
             		position: relative;
             		margin-left: 10px;
+            		@media screen and (max-width: $tablet) {
+	            		display:none;
+	            	}
             		.soundBar {
             			position: relative;
             			display: inline-block;
@@ -245,7 +276,7 @@ $desktop: 1024px;
         }
         &.playing {
             .rtopVideoHolder {
-                &:before {
+                &:before, &:after {
                     opacity: 0;
                 }
             }
@@ -258,16 +289,29 @@ $desktop: 1024px;
                 opacity: 0;
             }
             .rtopVideoHolder {
-                &:before {
+                &:before, &:after{
                     opacity: 0;
                 }
             }		
         }
         &.finished {
             .rtopVideoHolder {
-                &:before {
-                    background-image: url('../icons/reply-solid.svg');
-                }
+                &.hasFAIcons {
+                    &:after {
+                        @include vertical-align();
+                        opacity: 1;
+                        @include transition(.3s all ease-in);
+                        position: absolute;
+                        content: "\f3e5";
+                        font-family: "Font Awesome 5 Free";
+                        font-weight: 900;
+                        font-size: 80px;
+                        color: $default;
+                        width: 100%;
+                        text-align: center;
+                        z-index: 4;
+                    }
+            }
             }
             .vidControls {
                 opacity: 0;
@@ -317,13 +361,27 @@ $desktop: 1024px;
         left: 0;
   		z-index: 1;
 		background-color: rgba(0,0,0,.20);
-		background-image: url('../icons/play-circle-regular.svg');
 		background-size: 67px 67px;
 		background-repeat: no-repeat;
 		background-position: center center;
 		opacity: 1;
 		@include transition(.3s all ease-in);
 		cursor: pointer;
+    }
+    &.hasFAIcons {
+        &:after {
+            @include vertical-align();
+            position: absolute;
+            content: "\f144";
+            opacity: 1;
+            @include transition(.3s all ease-in);
+            font-family: "Font Awesome 5 Free";
+            font-size: 80px;
+            color: $default;
+            width: 100%;
+            text-align: center;
+            z-index: 4;
+        }
     }
     img {
     	position: absolute;
@@ -342,9 +400,13 @@ $desktop: 1024px;
 	left: 0;
 	display:none;
 	z-index: 999;
-	background-color:rgba(0,0,0,.8);
+	background-color:rgba(0,0,0,0);
 	&.show {
 		display:block;
+		animation: rtopModalBGColor .3s forwards;
+		.videoModalHolder {
+			animation: rtopModalOpacityColor .3s forwards;
+		}
 	}
 	.videoModalHolder {
 		@include vertical-align();
@@ -352,6 +414,7 @@ $desktop: 1024px;
 		margin: auto;
 		padding: 10px;
 		background-color:#000;
+		opacity: 0;
 	}
 	#closeVideo {
        	position: absolute;
@@ -384,5 +447,23 @@ $desktop: 1024px;
   }
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes rtopModalBGColor {
+  0% {
+  	background-color:rgba(0,0,0,0);
+  }
+  100% {
+    background-color:rgba(0,0,0,.8);
+  }
+}
+
+@keyframes rtopModalOpacityColor {
+  0% {
+  	opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }

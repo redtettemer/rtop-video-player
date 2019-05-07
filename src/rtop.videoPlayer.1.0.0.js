@@ -1,3 +1,9 @@
+/**
+ * RTO+P Video Player v1.0.0
+ * Copyright 2019 RTO+P https://www.rtop.com
+ * Author Rob Kandel
+ */
+
 (function(jQuery, window, document, undefined) {
     'use strict';
 
@@ -8,7 +14,7 @@
         this._defaults = jQuery.extend(true, {}, vid._defaults);
         this._name = 'RTOP_VideoPlayer';
         this._version = '1.0.0';
-        this._updated = '05.03.19';
+        this._updated = '05.07.19';
         this.init();
     };
 
@@ -22,18 +28,16 @@
         showPlayPauseBtn: true,
         showSoundControl: false,
         showFullScreen: false,
-        showCloseBtn: false,
-        allowPlayPause: true,
         keyboardControls: true,
         themeClass: 'rtopTheme',
-        lazyload: false,
         fontAwesomeControlIcons: true,
         autoPlay: false,
+        allowPlayPause: true,
         loop: false,
         allowReplay: true,
         playInModal: false,
+        showCloseBtn: false,
         closeModalOnFinish: false,
-        collapseOnFinish: false,
         gtmTagging: false,
         gtmOptions: {}
     }
@@ -52,20 +56,20 @@
         _self._playerWrapper = _self._element.find('.rtopVideoPlayer');
 
         // wrap video tag into new div
-        _self._video.wrap('<div class="rtopVideoHolder"></div>');
+        _self._video.wrap('<div class="rtopVideoHolder' + (_self._settings.fontAwesomeControlIcons ? ' hasFAIcons' : '') + '"></div>');
 
         // set random id if not there
         if (!_self._video.attr('id')) {
-            _self._video.attr('id', this.generateRandomId());
+            _self._video.attr('id', _self.generateRandomId());
         }
 
         // set video tag id
-        _self._player = document.getElementById(this._element.find('video').attr('id'));
+        _self._player = document.getElementById(_self._element.find('video').attr('id'));
 
         // if modal, build modal
         if (_self._settings.playInModal) {
-            jQuery('body').append('<div class="rtopVideoModal"><div class="videoModalHolder"></div></div>');
-            _self._element.append('<div class="rtopVideoPosterImage"><img src="' + _self._video.attr('poster') + '" /></div>');
+            jQuery('body').append('<div class="rtopVideoModal" id="' + _self._element.find('video').attr('id') + '_modal"><div class="videoModalHolder"></div></div>');
+            _self._element.append('<div class="rtopVideoPosterImage' + (_self._settings.fontAwesomeControlIcons ? ' hasFAIcons' : '') + '"><img src="' + _self._video.attr('poster') + '" /></div>');
         }
 
         // built necessary controls;
@@ -78,7 +82,7 @@
         }
         
         // send trigger that player has loaded
-        this.trigger('load_player');
+        _self.trigger('load_player');
     }
 
     // create the html video tag if we are lazy loading video
@@ -95,6 +99,8 @@
         // if scrubber, build
         if (_self._settings.showScrubber){
             _self.addProgressBar();
+        } else {
+            _self._element.find('.vidControls').addClass('noProgressBar').prepend('<div id="progressSpacer" class="controlBtn"></div>');
         }
 
         // if timer, build
@@ -115,6 +121,8 @@
         // if showPlayPauseBtn, build
         if (_self._settings.showPlayPauseBtn) {
             _self.addPlayPauseBtn();
+        } else {
+            _self._element.find('.vidControls').addClass('noPP').prepend('<div id="playPauseHolder" class="controlBtn"></div>');
         }
 
         // if showCloseBtn, build
@@ -170,43 +178,51 @@
         _self.playPauseEvents();
 
         // play/puase button in controls
+        _self._playerWrapper.find('#playPause').unbind('click');
         _self._playerWrapper.find('#playPause').on('click', function() {
             _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
         });
 
         // sounds
+        _self._playerWrapper.find('#soundControl').unbind('click');
         _self._playerWrapper.find('#soundControl').find('.muteBtn').on('click', function() {
             _self.mute();
         });
 
         _self._playerWrapper.find('#soundControl').find('.soundBar').each(function() {
+            jQuery(this).unbind('click');
             jQuery(this).on('click', function() {
                 _self.adjustVolume(jQuery(this).data('value'));
             });
         })
 
         // full screen button
+        _self._playerWrapper.find('#fullScreenBtn').unbind('click');
         _self._playerWrapper.find('#fullScreenBtn').on('click', function() {
           _self.fullScreen();
         });
 
         // close btn
-        _self._element.find('#closeVideo').on('click', function() {
+        _self._playerWrapper.parent().find('#closeVideo').unbind('click');
+        _self._playerWrapper.parent().find('#closeVideo').on('click', function() {
             _self.close();
         });
 
         // update orb on hover and seek on click;
+        _self._playerWrapper.find('#progressholder').unbind('mousemove');
+        _self._playerWrapper.find('#progressholder').unbind('click');
         _self._playerWrapper.find('#progressholder').on('mousemove', function(e){
             _self.updateOrb(e);
         }).on('click', function(e) {
             e.stopPropagation();
             // calc position
-            var _pos = e.pageX - _self._element.find("#progressholder").offset().left, 
-            _prop = (_pos + 1) / _self._element.find("#progressholder").width();
+            var _pos = e.pageX - _self._playerWrapper.find("#progressholder").offset().left, 
+            _prop = (_pos + 1) / _self._playerWrapper.find("#progressholder").width();
             _self.goTo(_prop * _self._player.duration);
         });
 
         if (_self._settings.playInModal) {
+            _self._element.find('.rtopVideoPosterImage').unbind('click');
             _self._element.find('.rtopVideoPosterImage').on('click', function() {
                 _self.openInModal();
             });
@@ -216,6 +232,9 @@
     vid.prototype.playPauseEvents = function() {
         var _self = this;
         // if you click video, play/pause or replay on finish
+        _self._element.find('.rtopVideoHolder').unbind('click');
+        _self._element.find('.rtopVideoHolder').unbind('mousemove');
+        _self._element.find('.rtopVideoHolder').unbind('mouseout');
         _self._element.find('.rtopVideoHolder').on('click', function() {
             _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
         }).on('mousemove', function(){
@@ -239,6 +258,7 @@
         });
         // add spacebar control for video
         if (_self._settings.keyboardControls) {
+            jQuery('body').unbind('keyup');
             jQuery('body').on('keyup', function(e) {
                 if(e.keyCode == 32){
                     _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
@@ -258,6 +278,7 @@
         _self._player.autoplay = true;
         _self._player.muted = true;
         _self._player.load();
+        _self.trigger('autoplayStart');
     }
 
     // play the video
@@ -413,7 +434,7 @@
             action: {
                 name: 'volume',
                 value: {
-                    vol
+                    vol: vol
                 }
             }
         });
@@ -427,21 +448,22 @@
         }
         _self._playerWrapper.removeClass('finished').find('.vidControls').removeClass('hide');
         if (_self._settings.playInModal) {
-
+            jQuery('#' + _self._video.attr('id') + '_modal').removeClass('show');
+            jQuery('#' + _self._video.attr('id') + '_modal').find('.videoModalHolder').empty();
         }
         _self.trigger('closeVideo');
     }
 
     // update progress on scrubber if needed
     vid.prototype.updateProgress = function(_self) {
-        _self._element.find("#buffered").css("width", ((_self._player.buffered.end(_self._player.buffered.length-1) / _self._player.duration) * 100) + "%");
-        _self._element.find("#progress").css("width", ((_self._player.currentTime / _self._player.duration) * 100) + "%");
+        _self._playerWrapper.find("#buffered").css("width", ((_self._player.buffered.end(_self._player.buffered.length-1) / _self._player.duration) * 100) + "%");
+        _self._playerWrapper.find("#progress").css("width", ((_self._player.currentTime / _self._player.duration) * 100) + "%");
 
         var current = (_self.sformat(_self._player.currentTime))
         var total = (_self.sformat(_self._player.duration))
 
-        _self._element.find('#currenttime').text(current);
-        _self._element.find('#totaltime').text(total);
+        _self._playerWrapper.find('#currenttime').text(current);
+        _self._playerWrapper.find('#totaltime').text(total);
         if(_self._player.ended) {
             _self.videoEnded();
         }
@@ -486,39 +508,42 @@
         _prop = _pos / _self._playerWrapper.find("#progressholder").width(), 
         // percent * time = where orb should be
         _prog = _prop * _self._player.duration;
-        _self._element.find("#progressorb").css("left", (_pos + _self._element.find("#progressorb").width() / 12) + "px");
+        _self._playerWrapper.find("#progressorb").css("left", (_pos + _self._playerWrapper.find("#progressorb").width() / 12) + "px");
     }
 
     // go to certain time in sec
     vid.prototype.goTo = function(sec){
         var _self = this;
         _self._player.currentTime = sec;
-        this.updateProgress(_self);
+        _self.updateProgress(_self);
     }
 
     // end of video
     vid.prototype.videoEnded = function() {
         var _self = this;
-        _self._playerWrapper.removeClass('playing').removeClass('paused').addClass('finished').removeClass('hideOverlay').find('.vidControls').addClass('hide');
+        _self._playerWrapper.removeClass('playing').removeClass('paused').addClass(_self._settings.closeModalOnFinish ? 'closing' : 'finished').removeClass('hideOverlay').find('.vidControls').addClass('hide');
         clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
-        setTimeout(function(){
-            _self._settings.closeModalOnFinish ? _self.close() : _self._player.load()
-        }, _self._settings.controlsHoverSensitivity);
-        this.trigger('videoEnded');
+        if (_self._settings.closeModalOnFinish) {
+            setTimeout(function(){
+                _self.close();
+            }, 300);
+        } else {
+            setTimeout(function(){
+                _self._player.load()
+            }, _self._settings.controlsHoverSensitivity);
+        }
+        _self.trigger('videoEnded');
     }
 
     // open player in modal
     vid.prototype.openInModal = function() {
         var _self = this;
-        jQuery('.rtopVideoModal').addClass('show');
-        jQuery('.rtopVideoModal .videoModalHolder').append(_self._element.clone());
-        _self._element = jQuery('.rtopVideoModal .videoModalHolder').find('.rtopVideoPlayerWrapper').parent();
-        _self._playerWrapper = jQuery('.rtopVideoModal .videoModalHolder').find('.rtopVideoPlayer');
-        jQuery('.rtopVideoModal .videoModalHolder').find('video').attr('id', _self.generateRandomId());
-        _self._video = jQuery('.rtopVideoModal .videoModalHolder').find('video')[0];
+        _self._playerWrapper.parent().appendTo('#' + _self._video.attr('id') + '_modal .videoModalHolder');
+        jQuery('#' + _self._video.attr('id') + '_modal').addClass('show');
+        _self.play();
         _self.clickEvents();
-
+        _self.trigger('modalOpen');
     };
 
     // random video id if needed
@@ -528,15 +553,17 @@
         for (var i = 0; i < 10; i++) {
             _random += _chars[Math.round(Math.random() * (_chars.length - 1))];
         }
-        this._settings.id = _random;
+        _self._settings.id = _random;
         return _random;
     }
 
     // send gtm tags
     vid.prototype.sendTag = function(type, tag) {
+        var _self = this;
         var _info = {};
         _info[type] = tag;
         dataLayer.push(_info);
+        _self.trigger('sentTag');
     }
 
     // gtm tag?
@@ -560,6 +587,7 @@
         clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
         jQuery(_self._element).removeData("vid.RTOP_VideoPlayer");
+        _self.trigger('destroyed')
     }
 
     // update options
