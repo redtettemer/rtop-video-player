@@ -49,3 +49,7 @@ header .logoHeader .title {
 	position: relative;
 	margin: 4rem 2rem;
 }
+
+.videoModalHolder .myVideo {
+	margin: 0;
+}

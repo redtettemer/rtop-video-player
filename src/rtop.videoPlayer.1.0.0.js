@@ -62,6 +62,12 @@
         // set video tag id
         _self._player = document.getElementById(this._element.find('video').attr('id'));
 
+        // if modal, build modal
+        if (_self._settings.playInModal) {
+            jQuery('body').append('<div class="rtopVideoModal"><div class="videoModalHolder"></div></div>');
+            _self._element.append('<div class="rtopVideoPosterImage"><img src="' + _self._video.attr('poster') + '" /></div>');
+        }
+
         // built necessary controls;
         if (_self._settings.showControls) {
             _self.buildControls();
@@ -199,21 +205,17 @@
             _prop = (_pos + 1) / _self._element.find("#progressholder").width();
             _self.goTo(_prop * _self._player.duration);
         });
+
+        if (_self._settings.playInModal) {
+            _self._element.find('.rtopVideoPosterImage').on('click', function() {
+                _self.openInModal();
+            });
+        }
     }
 
     vid.prototype.playPauseEvents = function() {
         var _self = this;
         // if you click video, play/pause or replay on finish
-        if (_self._settings.playInModal) {
-            _self._element.find('.rtopVideoHolder').on('click', function(evt) {
-                // if (!jQuery('.rtopVideoModal')[0]) {
-                //     evt.preventDefault();
-                //     evt.stopPropagation();
-                //     jQuery('body').append('<div class="rtopVideoModal"></div>');
-                //     _self.openInModal();
-                // }
-            })    
-        }
         _self._element.find('.rtopVideoHolder').on('click', function() {
             _self._playerWrapper.hasClass('playing') ? _self.pause() : (_self._playerWrapper.hasClass('finished') ? (_self._settings.allowReplay ? _self.replay() : null) : _self.play());
         }).on('mousemove', function(){
@@ -509,8 +511,14 @@
     // open player in modal
     vid.prototype.openInModal = function() {
         var _self = this;
-        _self.destroy();
-        jQuery('.rtopVideoModal').append(_self._element.clone());
+        jQuery('.rtopVideoModal').addClass('show');
+        jQuery('.rtopVideoModal .videoModalHolder').append(_self._element.clone());
+        _self._element = jQuery('.rtopVideoModal .videoModalHolder').find('.rtopVideoPlayerWrapper').parent();
+        _self._playerWrapper = jQuery('.rtopVideoModal .videoModalHolder').find('.rtopVideoPlayer');
+        jQuery('.rtopVideoModal .videoModalHolder').find('video').attr('id', _self.generateRandomId());
+        _self._video = jQuery('.rtopVideoModal .videoModalHolder').find('video')[0];
+        _self.clickEvents();
+
     };
 
     // random video id if needed
@@ -548,6 +556,7 @@
     vid.prototype.destroy = function() {
         var _self = this;
         _self._player.pause();
+        _self.goTo(0);
         clearInterval(_self._progress);
         clearTimeout(_self._motion_timer);
         jQuery(_self._element).removeData("vid.RTOP_VideoPlayer");
