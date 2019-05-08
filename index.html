@@ -55,8 +55,8 @@
 									<p>Include either the compiled CSS file in the <i>`dist/css`</i> folder or the uncompiled SCSS file in the <i>`src`</i> folder. Font Awesome 5 is optional but highly recommended!</p>
 								</div>
 								<pre>
-<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"dist/css/rtop.videoPlayer.1.0.0.min.css"</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://use.fontawesome.com/releases/v5.8.1/css/all.css"</span> </span><span class="hljs-attribute">integrity</span>=<span class="hljs-value">"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"</span><span class="hljs-attribute">crossorigin</span>=<span class="hljs-value">"anonymous"</span>&gt;</code>
+<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"dist/css/rtop.videoPlayer.1.0.0.min.css"/</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://use.fontawesome.com/releases/v5.8.1/css/all.css"</span> </span><span class="hljs-attribute">integrity</span>=<span class="hljs-value">"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"</span><span class="hljs-attribute">crossorigin</span>=<span class="hljs-value">"anonymous"</span>/&gt;</code>
 								</pre>
 							</div>
 							<div class="optionBlock">
@@ -81,7 +81,7 @@
   <span class="hljs-tag">&lt;/<span class="hljs-title">video</span>&gt;</span>    
 <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
 
-<span class="hljs-comment">&lt;!-- LAZY LOAD --&gt;</span>
+<span class="hljs-comment">&lt;!-- LAZY LOAD (preferred way for quicker page load)--&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"my_video"</span> <span class="hljs-attribute">data-video</span>=<span class="hljs-value">"sample.mp4"</span> <span class="hljs-attribute">data-type</span>=<span class="hljs-value">"video/mp4"</span> <span class="hljs-attribute">data-poster</span>=<span class="hljs-value">"sample.jpg"</span>&gt;</span>    
 <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
 </code></pre>
@@ -230,8 +230,7 @@ vid.on(<span class="hljs-string">'play.vid.rtop_videoplayer'</span>, <span class
 							<div class="hint" style="margin-top: 2rem;">
 								<p>You could also trigger events by yourself to control the video player</p>
 							</div>
-<pre><code class=" hljs javascript"><span class="hljs-keyword">var</span> vid = $(<span class="hljs-string">'#my_video'</span>);
-vid.RTOP_VideoPlayer();
+<pre><code class=" hljs javascript"><span class="hljs-keyword">var</span> vid = $(<span class="hljs-string">'#my_video'</span>).RTOP_VideoPlayer();
 
 <span class="hljs-comment">// play video</span>
 vid.RTOP_VideoPlayer('pause');
