@@ -66,6 +66,15 @@ $desktop: 1024px;
                     z-index: 4;
                 }
             }
+            &.vimeoPlayer {
+                iframe {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;
+                    left: 0;
+                }
+            }
             *::-webkit-media-controls-panel {
                 display: none!important;
                 -webkit-appearance: none !important;
@@ -330,7 +339,7 @@ $desktop: 1024px;
                 opacity: 1;
             }
             .rtopVideoHolder {
-                &:before {
+                &:before, &:after {
                 	opacity: 1;
                     animation: rtopVideoFadeOut 1.6s forwards;
                 }
