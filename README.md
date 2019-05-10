@@ -1,4 +1,5 @@
 # rtop-video-player
 jQuery Video Player plugin
 
-For documentation, download and open index.html
+# Documentation
+<a href="https://redtettemer.github.io/rtop-video-player/">https://redtettemer.github.io/rtop-video-player/</a>
