@@ -111,7 +111,7 @@ $desktop: 1024px;
 			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 );
             &.hide {
                 -webkit-transform: translate(0%,40px);
-                transform: translate(0%,6em);
+                transform: translate(0%,40px);
             }
             display: -ms-flexbox;
 			display: flex;
@@ -337,6 +337,10 @@ $desktop: 1024px;
         &.paused {
             .vidControls {
                 opacity: 1;
+                &.hide {
+                    -webkit-transform: translate(0%,0px);
+                    transform: translate(0%,0px);
+                }
             }
             .rtopVideoHolder {
                 &:before, &:after {
