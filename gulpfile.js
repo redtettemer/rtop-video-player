@@ -28,7 +28,7 @@
            .src([config.src])
            .pipe(plumber({errorHandler: onError}))
            .pipe(combine())
-           .pipe(concat('rtop.videoPlayer.1.0.0.min.scss'))
+           .pipe(concat('rtop.videoPlayer.1.0.1.min.scss'))
            .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError));
     
        return stream

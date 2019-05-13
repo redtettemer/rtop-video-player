@@ -12,16 +12,16 @@
 	<link rel="stylesheet" href="example/example.css" />
 	
 	<!-- required video player styles -->
-	<link rel="stylesheet" href="dist/css/rtop.videoPlayer.1.0.0.min.css" />
+	<link rel="stylesheet" href="dist/css/rtop.videoPlayer.1.0.1.min.css" />
 	
 	<!-- font awesome if optional but highly recommended -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 
 	<!-- jquery is required (any version) -->
-	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 	
 	<!-- required video player js source -->
-	<script type="text/javascript" src="dist/js/rtop.videoPlayer.1.0.0.min.js"></script>
+	<script type="text/javascript" src="dist/js/rtop.videoPlayer.1.0.1.min.js"></script>
 </head>
 <body>
 	<div class="siteWrapper">
@@ -54,7 +54,7 @@
 									<p>Include either the compiled CSS file in the <i>`dist/css`</i> folder or the uncompiled SCSS file in the <i>`src`</i> folder. Font Awesome 5 is optional but highly recommended!</p>
 								</div>
 								<pre>
-<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"dist/css/rtop.videoPlayer.1.0.0.min.css"/</span>&gt;</span>
+<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"dist/css/rtop.videoPlayer.1.0.1.min.css"/</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://use.fontawesome.com/releases/v5.8.1/css/all.css"</span> </span><span class="hljs-attribute">integrity</span>=<span class="hljs-value">"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"</span><span class="hljs-attribute">crossorigin</span>=<span class="hljs-value">"anonymous"</span>/&gt;</code>
 								</pre>
 							</div>
@@ -64,8 +64,8 @@
 									<p>Include either the minified file in the <i>`dist/js`</i> folder or the expanded file in the <i>`src`</i> folder. jQuery is required! But any version of jQuery will work</p>
 								</div>
 								<pre>
-<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"https://code.jquery.com/jquery-3.4.1.slim.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"dist/js/rtop.videoPlayer.1.0.0.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span></code>
+<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"https://code.jquery.com/jquery-3.4.1.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"dist/js/rtop.videoPlayer.1.0.1.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span></code>
 								</pre>
 							</div>
 							<div class="optionBlock">
@@ -214,11 +214,17 @@
 								<p>Default: <code class="default">{}</code></p>
 								<p>An object to hold the information for the tag that should be sent during the video. Each tag should be its own object with the keys: <code>time</code>, <code>name</code>,<code>type</code></p>
 							</div>
+							<div class="optionBlock">
+								<h4>vimeo_url</h4>
+								<p>Type: <code>String</code></p>
+								<p>Default: <code class="default">null</code></p>
+								<p>Embed a public Vimeo video (must be public!) with all the same displays and controls</p>
+							</div>
 						</div>
 						<div class="block">
 							<h3 class="blockHeadline">Events</h3>
 							<div class="hint">
-								<p>Events are provided by the video player in must locations. This gives you the ability to listen for any changes and perform your own actions.</p>
+								<p>Events are provided by the video player in most locations. This gives you the ability to listen for any changes and perform your own actions.</p>
 							</div>
 							<pre><code class=" hljs javascript"><span class="hljs-keyword">var</span> vid = $(<span class="hljs-string">'#my_video'</span>);
 vid.RTOP_VideoPlayer();
@@ -254,7 +260,9 @@ vid.RTOP_VideoPlayer('close');
 			var vid = $('#my_video').RTOP_VideoPlayer({
 				showFullScreen: true,
 				showTimer: true,
-				showSoundControl: true
+				showSoundControl: true,
+				vimeo_url: 'https://vimeo.com/335295041',
+				playInModal: true
 			});
 		});
 	</script>

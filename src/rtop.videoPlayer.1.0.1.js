@@ -13,8 +13,8 @@
         this._settings = jQuery.extend({}, vid._defaults, options);
         this._defaults = jQuery.extend(true, {}, vid._defaults);
         this._name = 'RTOP_VideoPlayer';
-        this._version = '1.0.0';
-        this._updated = '05.07.19';
+        this._version = '1.0.1';
+        this._updated = '05.13.19';
         this.init();
     };
 
@@ -39,7 +39,8 @@
         showCloseBtn: false,
         closeModalOnFinish: false,
         gtmTagging: false,
-        gtmOptions: {}
+        gtmOptions: {},
+        vimeo_url: null
     }
 
     //init player
@@ -47,7 +48,25 @@
         var _self = this;
 
         // check for video or buid video tags
-        _self._video = (_self._element.find('video')[0] === undefined) ? _self.createVideoTags() : _self._element.find('video');
+        if (_self._settings.vimeo_url) {
+            _self.initVimeo();
+        } else {
+            _self._video = (_self._element.find('video')[0] === undefined) ? _self.createVideoTags() : _self._element.find('video');
+            _self.buildWrapper();
+        }
+
+        // check to make sure video is present, if not dont continue;
+        if (!_self._video && !_self._settings.vimeo_url) {
+            _self.trigger('error');
+            return false;
+        }
+
+        // send trigger that player has loaded
+        _self.trigger('load_player');
+    }
+
+    vid.prototype.buildWrapper = function() {
+        var _self = this;
 
         // wrap everything into new divs
         _self._video.wrap('<div class="rtopVideoPlayerWrapper"><div class="rtopVideoPlayer ' + _self._settings.themeClass + (_self._settings.fontAwesomeControlIcons ? ' hasFA' : '') +'"></div>');
@@ -64,10 +83,12 @@
         }
 
         // set video tag id
-        _self._player = document.getElementById(_self._element.find('video').attr('id'));
+        if (!_self._settings.vimeo_url) {
+            _self._player = document.getElementById(_self._element.find('video').attr('id'));
+        }
 
         // if modal, build modal
-        if (_self._settings.playInModal) {
+        if (_self._settings.playInModal && !_self._settings.vimeo_url) {
             jQuery('body').append('<div class="rtopVideoModal" id="' + _self._element.find('video').attr('id') + '_modal"><div class="videoModalHolder"></div></div>');
             _self._element.append('<div class="rtopVideoPosterImage' + (_self._settings.fontAwesomeControlIcons ? ' hasFAIcons' : '') + '"><img src="' + _self._video.attr('poster') + '" /></div>');
         }
@@ -78,19 +99,29 @@
         } else if (!_self._settings.showControls && _self._settings.allowPlayPause) {
             _self.playPauseEvents();
         } else if (!_self._settings.showControls && !_self._settings.allowPlayPause && _self._settings.autoPlay) {
-            _self.startAutoPlay();
+            if (!_self._settings.vimeo_url) {
+                _self.startAutoPlay();
+            }
+        }
+        if (!_self._settings.showControls && !_self._settings.allowPlayPause) {
+            _self._playerWrapper.addClass('noControls');
         }
         
-        // send trigger that player has loaded
-        _self.trigger('load_player');
     }
 
     // create the html video tag if we are lazy loading video
     vid.prototype.createVideoTags = function() {
         var _self = this;
         var _videoData = _self._element.data();
-        _self._element.html('<video src="' + _videoData.video + '" playsinline type="' + _videoData.type + '" poster="' + _videoData.poster + '"><source src="' + _videoData.video + '" type="' + _videoData.type + '"></video>');
-        return _self._element.find('video');
+        // make sure data is present
+        if (_videoData.video) {
+            _self._element.html('<video src="' + _videoData.video + '" playsinline type="' + _videoData.type + '" poster="' + _videoData.poster + '"><source src="' + _videoData.video + '" type="' + _videoData.type + '"></video>');
+            return _self._element.find('video');
+        } else {
+            // display console log with documentation link if no video data
+            console.log('There was an error loading your video, please check documentation --> https://redtettemer.github.io/rtop-video-player/');
+            return false;
+        }
     }
 
     vid.prototype.buildControls = function() {
@@ -186,7 +217,13 @@
         // sounds
         _self._playerWrapper.find('#soundControl').unbind('click');
         _self._playerWrapper.find('#soundControl').find('.muteBtn').on('click', function() {
-            _self.mute();
+            if (_self._settings.vimeo_url) {
+                _self._player.getVolume().then(function(volume) {
+                    _self.mute(volume === 0);
+                });
+            } else {
+                _self.mute(jQuery(_self._player).prop('muted'));
+            }
         });
 
         _self._playerWrapper.find('#soundControl').find('.soundBar').each(function() {
@@ -216,12 +253,20 @@
         }).on('click', function(e) {
             e.stopPropagation();
             // calc position
-            var _pos = e.pageX - _self._playerWrapper.find("#progressholder").offset().left, 
-            _prop = (_pos + 1) / _self._playerWrapper.find("#progressholder").width();
-            _self.goTo(_prop * _self._player.duration);
+            var _pos = e.pageX - _self._playerWrapper.find("#progressholder").offset().left; 
+
+            var _maxPos = _self._playerWrapper.find("#progressholder").width() + parseFloat(_self._playerWrapper.find("#progressholder").css('padding-right')) + parseFloat(_self._playerWrapper.find("#progressholder").css('padding-left'));
+
+            if (_self._settings.vimeo_url) {
+                _self._player.getDuration().then(function(duration) {
+                    _self.goTo((_pos / _maxPos) * duration);
+                });
+            } else {
+                _self.goTo((_pos / _maxPos) * _self._player.duration);
+            }
         });
 
-        if (_self._settings.playInModal) {
+        if (_self._settings.playInModal && !_self._settings.vimeo_url) {
             _self._element.find('.rtopVideoPosterImage').unbind('click');
             _self._element.find('.rtopVideoPosterImage').on('click', function() {
                 _self.openInModal();
@@ -266,7 +311,7 @@
             });
         }
         // if autoplay, play
-        if (_self._settings.autoPlay) {
+        if (_self._settings.autoPlay && !_self._settings.vimeo_url) {
             _self.startAutoPlay();
         }
     }
@@ -274,10 +319,22 @@
     // if autoplay, start auto play
     vid.prototype.startAutoPlay = function() {
         var _self = this;
-        _self._playerWrapper.addClass('noPlayPause');
-        _self._player.autoplay = true;
-        _self._player.muted = true;
-        _self._player.load();
+        _self._playerWrapper.addClass('playing');
+        if (!_self._settings.vimeo_url) {
+            _self._player.autoplay = true;
+            _self._player.muted = true;
+            _self._player.load();
+        } else {
+            _self._player.setVolume(0);
+            _self._player.play();
+        }
+        // if controls, start timer to hide
+        if (_self._settings.showControls) {
+            clearTimeout(_self._motion_timer);
+            _self._motion_timer = setTimeout(function() {
+                _self._playerWrapper.addClass('hideOverlay').find('.vidControls').addClass('hide');
+            }, _self._settings.controlsHoverSensitivity);
+        }
         _self.trigger('autoplayStart');
     }
 
@@ -296,9 +353,18 @@
         }
         // update progress
         if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
-            _self._progress = setInterval(function(){
-                _self.updateProgress(_self)
-            }, 100);
+            if (_self._settings.vimeo_url) {
+                _self._player.on('progress', function(data) {
+                    _self.updateVimeoBuffer(_self, data);
+                });
+                _self._player.on('timeupdate', function(data) {
+                   _self.updateVimeoProgress(_self, data); 
+                });
+            } else {
+                _self._progress = setInterval(function(){
+                    _self.updateProgress(_self)
+                }, 100);
+            }
         }
         // if controls, start timer to hide
         if (_self._settings.showControls) {
@@ -323,6 +389,10 @@
         // stop the timer updating the progress, we dont need it if its paused
         if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
             clearInterval(_self._progress);
+            if (_self._settings.vimeo_url) {
+                _self._player.off('progress');
+                _self._player.off('timeupdate');
+            }
         }
         // if controls, clear timer to show controls
         if (_self._settings.showControls) {
@@ -340,6 +410,10 @@
         // stop the timer updating the progress, we dont need it if its paused
         if (_self._settings.showControls && (_self._settings.showScrubber || _self._settings.showTimer)) {
             clearInterval(_self._progress);
+            if (_self._settings.vimeo_url) {
+                _self._player.off('progress');
+                _self._player.off('timeupdate');
+            }
         }
         // if controls, clear timer to show controls
         if (_self._settings.showControls) {
@@ -349,6 +423,7 @@
         // change classes for play/pause
         _self._playerWrapper.removeClass('finished').find('.vidControls').removeClass('hide');
         // play video
+        _self.goTo(0);
         _self.play();
         _self.trigger('replay');
     }
@@ -371,12 +446,10 @@
     }
 
     // mute video when requested
-    vid.prototype.mute = function() {
+    vid.prototype.mute = function(isMuted) {
         var _self = this;
         // check to see if video is currently muted
-        if (jQuery(_self._player).prop('muted')) {
-            // unmute
-            _self._player.muted = false;
+        if (isMuted) {
             // change icons
             if (_self._settings.fontAwesomeControlIcons) {
                 _self._element.find('.vidControls').find('.muteBtn').html('<i class="fas fa-volume-up"></i>');
@@ -393,10 +466,20 @@
                     _flag = false;
                 }
             });
+            // mute
+            if (_self._settings.vimeo_url) {
+                _self._player.setVolume(parseFloat(_self._element.find('.soundBar.active').last().data('value')));
+            } else {
+                _self._player.muted = false;
+            }
             _self.trigger('unmute');
         } else {
             // mute
-            _self._player.muted = true;
+            if (_self._settings.vimeo_url) {
+                _self._player.setVolume(0);
+            } else {
+                _self._player.muted = true;
+            }
             // change icons
             if (_self._settings.fontAwesomeControlIcons) {
                 _self._element.find('.vidControls').find('.muteBtn').html('<i class="fas fa-volume-mute"></i>').data('current', _self._element.find('.soundBar.active').last().data('value'));
@@ -412,12 +495,17 @@
     // change volume
     vid.prototype.adjustVolume = function(vol) {
         var _self = this;
-        // if muted, unmute
-        if (jQuery(_self._player).prop('muted')) {
-            _self._player.muted = false;
-        }
+        
         // set the volume
-        _self._player.volume = parseFloat(vol);
+        if (_self._settings.vimeo_url) {
+                _self._player.setVolume(parseFloat(vol));
+        } else {
+            // if muted, unmute
+            if (jQuery(_self._player).prop('muted')) {
+                _self._player.muted = false;
+            }
+            _self._player.volume = parseFloat(vol);
+        }
 
         // adjust sound bar to active
         var _flag = true;
@@ -490,6 +578,41 @@
         });
     }
 
+    vid.prototype.updateVimeoBuffer = function(_self, data) {
+        _self._playerWrapper.find("#buffered").css("width", (data.percent * 100) + '%');
+        var total = (_self.sformat(data.duration));
+        _self._playerWrapper.find('#totaltime').text(total);
+    }
+
+    vid.prototype.updateVimeoProgress = function(_self, data) {
+        _self._playerWrapper.find("#progress").css("width", (data.percent * 100) + '%');
+        var current = (_self.sformat(data.seconds));
+        _self._playerWrapper.find('#currenttime').text(current);
+        if(data.duration === data.seconds) {
+            _self.videoEnded();
+        }
+        if (_self._settings.gtmTagging) {
+            if (typeof(dataLayer) !== undefined) {
+                for (var i in _self._settings.gtmOptions) {
+                    if (Math.floor((data.seconds / data.duration) * 100) === parseFloat(_self._settings.gtmOptions[i].time)) {
+                        if (!(_self.checkTaging(_self._settings.gtmOptions[i].name))) {
+                            _self.sendTag(_self._settings.gtmOptions[i].type, name);
+                        }
+                    }
+                }
+            }
+        }
+        _self.trigger('video_progress_vimeo', {
+            action: {
+                name: 'progress_vimeo',
+                value: {
+                    duration: data.duration,
+                    currentTime: current
+                }
+            }
+        });
+    }
+
     // format time
     vid.prototype.sformat = function(s) {
         var fm = [
@@ -503,19 +626,24 @@
     vid.prototype.updateOrb = function(e){
         var _self = this;
         // calc orb pos
-        var _pos = e.pageX - _self._playerWrapper.find("#progressholder").offset().left, 
-        // get percent
-        _prop = _pos / _self._playerWrapper.find("#progressholder").width(), 
-        // percent * time = where orb should be
-        _prog = _prop * _self._player.duration;
-        _self._playerWrapper.find("#progressorb").css("left", (_pos + _self._playerWrapper.find("#progressorb").width() / 12) + "px");
+        var _pos = e.pageX - _self._playerWrapper.find("#progressholder").offset().left;
+        
+        var _orbPos = (_pos - (_self._playerWrapper.find("#progressorb").width() / 2));
+
+        var _maxPos = _self._playerWrapper.find("#progressholder").width() + parseFloat(_self._playerWrapper.find("#progressholder").css('padding-right')) + parseFloat(_self._playerWrapper.find("#progressholder").css('padding-left')) - (_self._playerWrapper.find("#progressorb").width() / 2);
+
+        _self._playerWrapper.find("#progressorb").css("left", (_orbPos > _maxPos) ? _maxPos : _orbPos + "px");
     }
 
     // go to certain time in sec
     vid.prototype.goTo = function(sec){
         var _self = this;
-        _self._player.currentTime = sec;
-        _self.updateProgress(_self);
+        if (_self._settings.vimeo_url) {
+            _self._player.setCurrentTime(sec);
+        } else {
+            _self._player.currentTime = sec;
+            _self.updateProgress(_self);
+        }
     }
 
     // end of video
@@ -523,15 +651,18 @@
         var _self = this;
         _self._playerWrapper.removeClass('playing').removeClass('paused').addClass(_self._settings.closeModalOnFinish ? 'closing' : 'finished').removeClass('hideOverlay').find('.vidControls').addClass('hide');
         clearInterval(_self._progress);
+        if (_self._settings.vimeo_url) {
+            _self._player.off('progress');
+            _self._player.off('timeupdate');
+        }
         clearTimeout(_self._motion_timer);
+        if (_self._settings.loop && !_self._settings.vimeo_url) {
+            _self.replay();
+        }
         if (_self._settings.closeModalOnFinish) {
             setTimeout(function(){
                 _self.close();
             }, 300);
-        } else {
-            setTimeout(function(){
-                _self._player.load()
-            }, _self._settings.controlsHoverSensitivity);
         }
         _self.trigger('videoEnded');
     }
@@ -545,6 +676,49 @@
         _self.clickEvents();
         _self.trigger('modalOpen');
     };
+
+    vid.prototype.initVimeo = function() {
+        var _self = this;
+        if (!(window.Vimeo)) {
+            jQuery.ajax({
+                url: "https://player.vimeo.com/api/player.js",
+                type: "GET",
+                dataType: "script",
+                success: function() {
+                    _self.createVimeoEmbed();
+                },
+                error: function(jqxhr, settings, exception ) {
+                  console.log('Vimeo SDK (player.js) failed to load', exception);
+                }
+            });
+        } else {
+            _self.createVimeoEmbed();
+        }
+    }
+
+    vid.prototype.createVimeoEmbed = function() {
+        var _self = this;
+        _self._element.append('<div class="rtopExternalPlayer"></div>');
+        _self._video = _self._element.find('.rtopExternalPlayer');
+        _self.buildWrapper();
+        var iframe = document.createElement('iframe'), regex = /^.*(vimeo.com\/|video\/)(\d+).*/;
+        iframe.setAttribute('src', 'https://player.vimeo.com/video/' + (_self._settings.vimeo_url.match(regex) ? RegExp.$2 : _self._settings.vimeo_url) + '?controls=0');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('allowtransparency', '');
+        iframe.setAttribute('allow', 'autoplay');
+        _self._element.find('.rtopVideoHolder').addClass('vimeoPlayer').find('.rtopExternalPlayer').append(iframe);
+        var _vimPlayer = new window.Vimeo.Player(iframe);
+        _self._video = _vimPlayer;
+        _self._player = _vimPlayer;
+        if (_self._settings.loop) {
+            _self._player.setLoop(true);
+        }
+        // if autoplay, play
+        if (_self._settings.autoPlay) {
+            _self.startAutoPlay();
+        }
+        _self.trigger('vimeo_iframe');
+    }   
 
     // random video id if needed
     vid.prototype.generateRandomId = function() {
@@ -585,6 +759,10 @@
         _self._player.pause();
         _self.goTo(0);
         clearInterval(_self._progress);
+        if (_self._settings.vimeo_url) {
+            _self._player.off('progress');
+            _self._player.off('timeupdate');
+        }
         clearTimeout(_self._motion_timer);
         jQuery(_self._element).removeData("vid.RTOP_VideoPlayer");
         _self.trigger('destroyed')

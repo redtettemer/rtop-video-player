@@ -183,7 +183,6 @@ $desktop: 1024px;
                 bottom: 0;
                 margin: auto 0;
                 left: 0;
-                @include transition(.3s all);
                 border-radius: 4px;
             }
             #progress {
@@ -195,8 +194,8 @@ $desktop: 1024px;
                 height: 2px;
                 background: rgba(255,255,255,1);
                 width: 0;
-                @include transition(.3s all ease-in);
                 border-radius: 4px;
+                border-right: 4px solid $highlight;
             }
             #progressholder:hover #progressorb {
                 background-color: rgba($highlight, 1);
@@ -205,9 +204,9 @@ $desktop: 1024px;
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                margin: auto 0 auto -8px;
-                width: 16px;
-                height: 16px;
+                margin: auto 0;
+                width: 8px;
+                height: 8px;
                 border-radius: 10px;
                 background-color: rgba($highlight, 0);
                 @include transition(.3s background-color ease-in);
@@ -293,6 +292,15 @@ $desktop: 1024px;
                 opacity: 1;
             }
         }
+        &.noControls {
+            cursor:default;
+            .rtopVideoHolder {
+                cursor:default;
+                &:before, &:after {
+                   cursor:default;
+                }
+            }
+        }
         &.closing {
         	.vidControls {
                 opacity: 0;
@@ -329,7 +337,7 @@ $desktop: 1024px;
         &.hideOverlay {
             .rtopVideoHolder {
             	cursor: none;
-                &:hover:before, &:before {
+                &:hover:before, &:before, &:hover:after, &:after {
                     opacity: 0;
                 }
             }
