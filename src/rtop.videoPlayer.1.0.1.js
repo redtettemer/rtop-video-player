@@ -432,15 +432,14 @@
     vid.prototype.fullScreen = function() {
       var _self = this;
       // check if full screen and either enter or exit as needed
-      if (!window.isFs) {
-        window.isFs = true;
-        var fn_enter = _self._player.requestFullscreen || _self._player.webkitEnterFullscreen || _self._player.mozRequestFullScreen || _self._player.oRequestFullscreen || _self._player.msRequestFullscreen;
-        fn_enter.call(_self._player);
+      if (!_self._isFs) {
+        _self._isFs = true;
+        var _id = document.getElementById(_self._settings.vimeo_url ? _self._element.find('.rtopExternalPlayer').attr('id') : _self._video.attr('id')).parentNode.parentNode;
+        _self.runPrefixMethod(_id, "RequestFullScreen");
         _self.trigger('videoEnterFullScreen');
       } else {
-        window.isFs = false;
-        var fn_exit = _self._player.exitFullScreen || _self._player.webkitExitFullScreen || _self._player.mozExitFullScreen || _self._player.oExitFullScreen || _self._player.msExitFullScreen;
-        fn_exit.call(_self._player);
+        _self._isFs = false;
+        _self.runPrefixMethod(document, "CancelFullScreen");
         _self.trigger('videoExitFullScreen');
       }
     }
@@ -751,6 +750,25 @@
             return false;
         }
         return true;
+    }
+
+    // make div full screen
+    vid.prototype.runPrefixMethod = function(obj, method) {
+        var pfx = ["webkit", "moz", "ms", "o", ""];
+        var p = 0, m, t;
+        while (p < pfx.length && !obj[m]) {
+            m = method;
+            if (pfx[p] == "") {
+                m = m.substr(0,1).toLowerCase() + m.substr(1);
+            }
+            m = pfx[p] + m;
+            t = typeof obj[m];
+            if (t != "undefined") {
+                pfx = [pfx[p]];
+                return (t == "function" ? obj[m]() : obj[m]);
+            }
+            p++;
+        }
     }
 
     // destroy plugin
