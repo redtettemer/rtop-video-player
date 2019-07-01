@@ -361,6 +361,33 @@ $desktop: 1024px;
     #closeVideo {
        	display:none;
     }
+
+    .rtopVideoPlayer.isFullscreen {
+        background: #000;
+        height: 100%;
+        margin: 0;
+        width: 100%
+        video {
+          height: 100%
+        }
+        .rtopVideoHolder {
+          height: 100%;
+          padding-bottom: 0;
+        }
+      }
+      .rtopVideoPlayer.isFullscreen.fallbackFS {
+        background: #000;
+        border-radius: 0!important;
+        height: 100%;
+        margin: 0;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        position: fixed;
+        right: 0;
+        top: 0;
+        z-index: 10000000
+      }
 }
 
 .rtopVideoPosterImage {
@@ -457,6 +484,12 @@ $desktop: 1024px;
     .rtopVideoPosterImage {
     	display: none;
     }
+}
+
+body.noScroll {
+  overflow: hidden;
+  height: 100vh;
+  position: fixed;
 }
 
 @keyframes rtopVideoFadeOut {

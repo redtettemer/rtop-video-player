@@ -1,5 +1,5 @@
 /**
- * RTO+P Video Player v1.0.0
+ * RTO+P Video Player v1.0.2
  * Copyright 2019 RTO+P https://www.rtop.com
  * Author Rob Kandel
  */
@@ -13,8 +13,8 @@
         this._settings = jQuery.extend({}, vid._defaults, options);
         this._defaults = jQuery.extend(true, {}, vid._defaults);
         this._name = 'RTOP_VideoPlayer';
-        this._version = '1.0.1';
-        this._updated = '05.13.19';
+        this._version = '1.0.2';
+        this._updated = '07.01.19';
         this.init();
     };
 
@@ -430,18 +430,76 @@
 
     // toggle full screen if present
     vid.prototype.fullScreen = function() {
-      var _self = this;
-      // check if full screen and either enter or exit as needed
-      if (!_self._isFs) {
-        _self._isFs = true;
-        var _id = document.getElementById(_self._settings.vimeo_url ? _self._element.find('.rtopExternalPlayer').attr('id') : _self._video.attr('id')).parentNode.parentNode;
-        _self.runPrefixMethod(_id, "RequestFullScreen");
-        _self.trigger('videoEnterFullScreen');
-      } else {
-        _self._isFs = false;
-        _self.runPrefixMethod(document, "CancelFullScreen");
-        _self.trigger('videoExitFullScreen');
-      }
+        var _self = this;
+        // check if full screen and either enter or exit as needed
+        if (!_self._isFs) {
+            if (navigator.userAgent.toLowerCase().indexOf('safari') > -1 && navigator.userAgent.toLowerCase().indexOf('mobile') > -1) {
+                _self._playerWrapper.addClass('isFullscreen').addClass('fallbackFS');
+                _self._scrollPos = {
+                    x: window.scrollX || 0,
+                    y: window.scrollY || 0
+                }
+                jQuery('body').addClass('noScroll');
+                _self._isFs = true;
+                _self.trigger('videoEnterFullScreen');
+            } else {
+                _self.runPrefixMethod( navigator.userAgent.toLowerCase().indexOf('safari') > -1 ? _self._video[0] : _self._playerWrapper[0], navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ? "RequestFullScreen" : "RequestFullscreen");
+                document.addEventListener('webkitfullscreenchange', function() {
+                    if (_self._isFs) {
+                       _self._isFs = false;
+                        _self._playerWrapper.removeClass('isFullscreen');
+                        _self.trigger('videoExitFullScreen');
+                    } else {
+                        _self._isFs = true;
+                        _self._playerWrapper.addClass('isFullscreen');
+                        _self.trigger('videoEnterFullScreen');
+                    }
+                }, false);
+                document.addEventListener('mozfullscreenchange', function() {
+                    if (_self._isFs) {
+                       _self._isFs = false;
+                        _self._playerWrapper.removeClass('isFullscreen');
+                        _self.trigger('videoExitFullScreen');
+                    } else {
+                        _self._isFs = true;
+                        _self._playerWrapper.addClass('isFullscreen');
+                        _self.trigger('videoEnterFullScreen');
+                    }
+                }, false);
+                document.addEventListener('fullscreenchange', function() {
+                    if (_self._isFs) {
+                       _self._isFs = false;
+                        _self._playerWrapper.removeClass('isFullscreen');
+                        _self.trigger('videoExitFullScreen');
+                    } else {
+                        _self._isFs = true;
+                        _self._playerWrapper.addClass('isFullscreen');
+                        _self.trigger('videoEnterFullScreen');
+                    }
+                }, false);
+                document.addEventListener('MSFullscreenChange', function() {
+                    if (_self._isFs) {
+                       _self._isFs = false;
+                        _self._playerWrapper.removeClass('isFullscreen');
+                        _self.trigger('videoExitFullScreen');
+                    } else {
+                        _self._isFs = true;
+                        _self._playerWrapper.addClass('isFullscreen');
+                        _self.trigger('videoEnterFullScreen');
+                    }
+                }, false);
+            }
+        } else {
+            if (navigator.userAgent.toLowerCase().indexOf('safari') > -1 && navigator.userAgent.toLowerCase().indexOf('mobile') > -1) {
+                _self._isFs = false;
+                    _self._playerWrapper.removeClass('isFullscreen').removeClass('fallbackFS');
+                    _self.trigger('videoExitFullScreen');
+                    jQuery('body').removeClass('noScroll');
+                    window.scrollTo(_self._scrollPos.x, _self._scrollPos.y);
+            } else {
+                _self.runPrefixMethod(document, "CancelFullScreen");
+            }
+        }
     }
 
     // mute video when requested
