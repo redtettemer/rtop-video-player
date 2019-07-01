@@ -12,16 +12,13 @@
 	<link rel="stylesheet" href="example/example.css" />
 	
 	<!-- required video player styles -->
-	<link rel="stylesheet" href="dist/css/rtop.videoPlayer.1.0.1.min.css" />
+	<link rel="stylesheet" href="dist/css/rtop.videoPlayer.1.1.0.css" />
 	
 	<!-- font awesome if optional but highly recommended -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
-	<!-- jquery is required (any version) -->
-	<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 	
 	<!-- required video player js source -->
-	<script type="text/javascript" src="dist/js/rtop.videoPlayer.1.0.1.min.js"></script>
+	<script type="text/javascript" src="dist/js/rtop.videoPlayer.1.1.0.js"></script>
 </head>
 <body>
 	<div class="siteWrapper">
@@ -53,20 +50,15 @@
 								<div class="hint">
 									<p>Include either the compiled CSS file in the <i>`dist/css`</i> folder or the uncompiled SCSS file in the <i>`src`</i> folder. Font Awesome 5 is optional but highly recommended!</p>
 								</div>
-								<pre>
-<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"dist/css/rtop.videoPlayer.1.0.1.min.css"/</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://use.fontawesome.com/releases/v5.8.1/css/all.css"</span> </span><span class="hljs-attribute">integrity</span>=<span class="hljs-value">"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"</span><span class="hljs-attribute">crossorigin</span>=<span class="hljs-value">"anonymous"</span>/&gt;</code>
-								</pre>
+								<pre><code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"dist/css/rtop.videoPlayer.1.1.0.css"/</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://use.fontawesome.com/releases/v5.8.1/css/all.css"</span> </span><span class="hljs-attribute">integrity</span>=<span class="hljs-value">"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"</span><span class="hljs-attribute">crossorigin</span>=<span class="hljs-value">"anonymous"</span>/&gt;</code></pre>
 							</div>
 							<div class="optionBlock">
 								<h4 class="blockSubHeadline">Include JS</h4>
 								<div class="hint">
-									<p>Include either the minified file in the <i>`dist/js`</i> folder or the expanded file in the <i>`src`</i> folder. jQuery is required! But any version of jQuery will work</p>
+									<p>Include either the minified file in the <i>`dist/js`</i> folder or the expanded file in the <i>`src`</i> folder.</p>
 								</div>
-								<pre>
-<code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"https://code.jquery.com/jquery-3.4.1.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"dist/js/rtop.videoPlayer.1.0.1.min.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span></code>
-								</pre>
+								<pre><code class=" hljs xml"><span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"dist/js/rtop.videoPlayer.1.1.0.js"</span>&gt;</span><span class="javascript"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span></code></pre>
 							</div>
 							<div class="optionBlock">
 								<h4 class="blockSubHeadline">Set HTML</h4>
@@ -256,13 +248,24 @@ vid.RTOP_VideoPlayer('close');
 		</div>
 	</div>
 	<script type="text/javascript">
-		$(document).ready(function(){
-			var vid = $('#my_video').RTOP_VideoPlayer({
+		// $(document).ready(function(){
+			// var vid = $('#my_video').RTOP_VideoPlayer({
+			// 	showFullScreen: true,
+			// 	showTimer: true,
+			// 	showSoundControl: true
+			// });
+			var vid = new VideoPlayer('#my_video', {
 				showFullScreen: true,
 				showTimer: true,
 				showSoundControl: true
 			});
-		});
+			vid.on('custom', function(event) {
+        		console.log("CUSTOM ELEMENT!");
+    		});
+			vid.on('timeupdate', function(event) {
+        		console.log(event);
+    		});
+		// });
 	</script>
 </body>
 </html>

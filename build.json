@@ -1,0 +1,16 @@
+{
+    "js": {
+        "rtop.videoPlayer.js": {
+            "src": "./src/js/rtop.videoPlayer.js",
+            "dist": "./dist/js/",
+            "formats": ["es"],
+            "namespace": "RTOP_VideoPlayer"
+        }
+    },
+    "css": {
+        "rtop.videoPlayer.css": {
+            "src": "./src/sass/rtop.videoPlayer.scss",
+            "dist": "./dist/css/"
+        }
+    }
+}
