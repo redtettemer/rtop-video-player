@@ -443,7 +443,7 @@
                 _self._isFs = true;
                 _self.trigger('videoEnterFullScreen');
             } else {
-                _self.runPrefixMethod( navigator.userAgent.toLowerCase().indexOf('safari') > -1 ? _self._video[0] : _self._playerWrapper[0], navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ? "RequestFullScreen" : "RequestFullscreen");
+                _self.runPrefixMethod( navigator.userAgent.toLowerCase().indexOf('safari') > -1 ? (_self._settings.vimeo_url ? _self._video.element : _self._video[0]) : _self._playerWrapper[0], navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ? "RequestFullScreen" : "RequestFullscreen");
                 document.addEventListener('webkitfullscreenchange', function() {
                     if (_self._isFs) {
                        _self._isFs = false;
